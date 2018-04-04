@@ -1,7 +1,7 @@
 const
 	Future = require( 'fibers/future' ),
+	lodashMerge = require('lodash/merge'),
 	mysql = require('mysql');
-
 
 function querySync(query, values) {
 	return dbh.querySync(query, values);
@@ -27,8 +27,22 @@ function querySync(query, values) {
 class MysqlDatabase {
 	constructor(config) {
 		//console.log("created MysqlDatabase:", db);
-		this._db = mysql.createConnection(config);
+		this._config = lodashMerge({}, config);
+		this._db = mysql.createConnection(this._config);
 		this._transacted = 0;
+	}
+
+	connect(cb) {
+		this._db.connect(cb);
+	}
+
+	connectSync() {
+		const future = new Future();
+		this.db.connect((err) => {
+			future.return();
+		});
+
+		return future.wait();
 	}
 
 	disconnect() {
@@ -38,6 +52,10 @@ class MysqlDatabase {
 	closeAndExit() {
 		trxDb.destroy();
 		setTimeout(() => { process.exit(); }, 500);
+	}
+
+	query(query, values, cb) {
+		return this._db.query(query, values, cb);
 	}
 
 	/**
@@ -69,7 +87,7 @@ class MysqlDatabase {
 	 * @param values
 	 * @returns {Object} - the object with selected fields or {} of no rows found
 	 */
-	querySingleSync(query, values) {
+	getRowSync(query, values) {
 		const rows = this.querySync(query, values);
 		// It is questionable: should we return {} or null below? Which is easier to use?
 		// {} seems to be safer to use, no null.field error will fire

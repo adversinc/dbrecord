@@ -1,0 +1,8 @@
+{
+	"mysql": {
+		"host": "192.168.81.10",
+		"user": "tests",
+		"password": "tests",
+		"database": "tests"
+	}
+}

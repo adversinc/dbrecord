@@ -22,8 +22,13 @@
   },
   "homepage": "https://github.com/adversinc/dbrecord#readme",
   "devDependencies": {
+    "assert": "^1.4.1",
     "babel-cli": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1"
+    "babel-preset-es2015": "^6.24.1",
+    "config": "^1.30.0",
+    "mocha": "^5.0.5",
+    "mocha-fibers": "^1.1.1",
+    "promise-mysql": "^3.2.1"
   },
   "dependencies": {
     "fibers": "^2.0.0",

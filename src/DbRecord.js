@@ -76,8 +76,7 @@ class DbRecord {
 		this._raw = {};
 		this._changes = {};
 
-		// Kinda weird reuse function => variable. Really don't know why I like it.
-		this._table = this._table();
+		this._tableName = this._table();
 		this._locatefield = this._locatefield();
 
 		// Use either locally provided or global database handle
@@ -113,7 +112,7 @@ class DbRecord {
 			sql = "INSERT INTO ";
 		}
 
-		sql += `${this._table} SET `;
+		sql += `${this._tableName} SET `;
 		const fields = [];
 		const values = [];
 		Object.keys(this._changes).forEach((field) => {
@@ -167,7 +166,7 @@ class DbRecord {
 	 * @param {*} locateValue - the database unique id of the record
 	 */
 	_read(locateValue) {
-		const rows = this._dbh.querySync(`SELECT * FROM ${this._table} WHERE ${this._locatefield}=? LIMIT 1`,
+		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${this._locatefield}=? LIMIT 1`,
 			[locateValue]);
 		if(rows.length == 0) {
 			throw "E_DB_NO_OBJECT";
@@ -184,7 +183,7 @@ class DbRecord {
 	 * @private
 	 */
 	_initEmpty() {
-		const rows = this._dbh.querySync(`DESCRIBE ${this._table}`);
+		const rows = this._dbh.querySync(`DESCRIBE ${this._tableName}`);
 		rows.forEach((field) => { this._createAccessMethod(field.Field); });
 	}
 
