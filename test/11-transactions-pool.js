@@ -5,21 +5,33 @@ const
 	assert = require('assert'),
 	config = require("config"),
 	Future = require('fibers/future'),
-	Fiber = require('fibers');
+	Fiber = require('fibers'),
+	lodashMerge = require('lodash/merge');
 
 // Libs to test
-const MysqlDatabase = require("../lib/mysql-queries").default;
+const MysqlDatabase = require("../lib/MysqlDatabase").default;
 const TestRecord = require('./classes/TestRecord');
 
 // Tests
-describe('DbRecord transactions', function() {
+describe('DbRecord transactions pool', function() {
 	let dbh = null;
+
 	before(function() {
-		MysqlDatabase.globalConfig(config.get("mysql"));
-		dbh = MysqlDatabase.globalDbh();
+		const c = lodashMerge({}, config.get("mysql"));
+		// Should be at least 3: one main connection, and 1 for each thread in test
+		if(c.connectionLimit < 3) {
+			console.warn("c.connectionLimit increased to 3");
+			c.connectionLimit = 3;
+		}
+
+		MysqlDatabase.setupPool(c);
+		dbh = MysqlDatabase.masterDbh();
+	});
+	after(() => {
+		MysqlDatabase.masterDbhDestroy();
 	});
 	beforeEach(() => {
-
+		TestRecord.createMockTable(dbh);
 	});
 
 	//
@@ -53,12 +65,6 @@ describe('DbRecord transactions', function() {
 	//
 	//
 	it('should remove uncommitted', function() {
-		//dbh._db.on('enqueue', function(sequence) {
-		//	console.log("QUERY: ", sequence.sql);
-		//});
-
-		TestRecord.createMockTable(dbh);
-
 		var objId = null;
 		dbh.execTransaction((dbh) => {
 			const obj = new TestRecord();
@@ -86,9 +92,7 @@ describe('DbRecord transactions', function() {
 
 	//
 	//
-	it('should intersect on single dbh', function() {
-		TestRecord.createMockTable(dbh);
-
+	it('should not intersect', function() {
 		const sleep = function(ms) {
 			var fiber = Fiber.current;
 			setTimeout(function() {
@@ -99,9 +103,10 @@ describe('DbRecord transactions', function() {
 
 		let rowsFound = null;
 
-		// Start thread 2 which waits 500ms and then checks how many records there are
-		// in a table. Should be 0 for a normal transaction, but we expect 1 here
-		// since we share a single connection
+		dbh.querySync("INSERT INTO dbrecord_test SET name=?", [ 'main thread' ]);
+
+		// Start thread 2 which waits 500ms. Then checks how many records there are
+		// in a table. Should be 1 if transaction separation works.
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
 				sleep(500);
@@ -109,7 +114,7 @@ describe('DbRecord transactions', function() {
 
 				const res = dbh.getRowSync("SELECT COUNT(*) cnt FROM dbrecord_test");
 				rowsFound = res.cnt;
-				console.log("thread 2 res: ", res);
+				console.log("thread 2 rows found: ", rowsFound.cnt);
 
 				console.log("thread 2 exiting");
 			});
@@ -119,15 +124,20 @@ describe('DbRecord transactions', function() {
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
 			console.log("thread 1 starting");
-			dbh.querySync("INSERT INTO dbrecord_test SET name='thread 1'");
+			dbh.querySync("INSERT INTO dbrecord_test SET name=?, field2=?",
+				[ 'thread 1 ', Math.random()*1000000 ]);
+
+			console.log("thread 1 has added a 2nd record");
 			sleep(1000);
 			console.log("thread 1 exiting");
 		});
 
+		sleep(1000);
+
 		console.log("tests completed");
 
 		// Checks
-		assert.equal(rowsFound, 1, "Found trx overlap");
+		assert.equal(rowsFound, 1, "No trx overlap found");
 	});
 });
 

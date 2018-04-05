@@ -1,4 +1,4 @@
-import MysqlDatabase from "./mysql-queries";
+import MysqlDatabase from "./MysqlDatabase";
 
 /**
  * Represents the database record class.
@@ -81,7 +81,7 @@ class DbRecord {
 		if(options.dbh) {
 			this._dbh = options.dbh;
 		} else {
-			this._dbh = MysqlDatabase.globalDbh();
+			this._dbh = MysqlDatabase.masterDbh();
 		}
 
 		this._init(options);

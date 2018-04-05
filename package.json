@@ -32,6 +32,7 @@
     "source-map-support": "^0.5.4"
   },
   "dependencies": {
+    "continuation-local-storage": "^3.2.1",
     "fibers": "^2.0.0",
     "mysql": "^2.15.0"
   }

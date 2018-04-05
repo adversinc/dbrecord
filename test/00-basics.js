@@ -4,20 +4,25 @@ const
 	config = require("config");
 
 // Libs to test
-const MysqlDatabase = require("../lib/mysql-queries").default;
+const MysqlDatabase = require("../lib/MysqlDatabase").default;
 const TestRecord = require('./classes/TestRecord');
 
 // Tests
 describe('DbRecord basic ops', function() {
 	let dbh = null;
 	before(function() {
-		MysqlDatabase.globalConfig(config.get("mysql"));
-		dbh = MysqlDatabase.globalDbh();
+		MysqlDatabase.masterConfig(config.get("mysql"));
+		dbh = MysqlDatabase.masterDbh();
+	});
+	after(() => {
+		MysqlDatabase.masterDbhDestroy();
+	});
+
+	beforeEach(() => {
+		TestRecord.createMockTable(dbh);
 	});
 
 	it('should create a row', function() {
-		TestRecord.createMockTable(dbh);
-
 		const obj = new TestRecord();
 		obj.name(this.test.fullTitle());
 		obj.commit();
