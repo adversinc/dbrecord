@@ -1,7 +1,7 @@
 {
   "name": "advers-dbrecord",
   "version": "1.0.0",
-  "description": "The MySQL active record base",
+  "description": "The MySQL active record base class",
   "main": "lib/index.js",
   "scripts": {
     "compile": "babel --presets es2015 --source-maps -d lib/ src/",
