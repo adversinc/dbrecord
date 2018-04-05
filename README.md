@@ -51,6 +51,7 @@ obj->some_field1("new value 1");
 obj->some_field2("new value 2");
 ...
 obj->commit();
+```
 
 Until commit() is called, the value of locate-field of the new record is
 not know (obviously). During the commit(), class reads the new record ID
@@ -65,10 +66,11 @@ console.log("New object ID", obj->id());
 # To be moved:
  
 The MySQL connection wrapper which provides the following features:
-- "master" db connection factory function
-- sync queries (using Future)
-- async queries (using Promises - not tested yet)
-- nested transactions support (in progress)
-- connection pooling for transaction
-- local context of "master" db connection inside the transaction
+
+* "master" db connection factory function
+* sync queries (using Future)
+* async queries (using Promises - not tested yet)
+* nested transactions support (in progress)
+* connection pooling for transaction
+* local context of "master" db connection inside the transaction
 
