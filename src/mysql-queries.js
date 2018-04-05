@@ -7,6 +7,8 @@ function querySync(query, values) {
 	return dbh.querySync(query, values);
 }
 
+let globalConfig = {};
+let globalDbh = null;
 
 /**
  * The database processing class.
@@ -30,6 +32,7 @@ class MysqlDatabase {
 		this._config = lodashMerge({}, config);
 		this._db = mysql.createConnection(this._config);
 		this._transacted = 0;
+		this._seq = Math.random();
 	}
 
 	connect(cb) {
@@ -38,7 +41,11 @@ class MysqlDatabase {
 
 	connectSync() {
 		const future = new Future();
-		this.db.connect((err) => {
+		this.connect((err) => {
+			if(err) {
+				throw err;
+			}
+
 			future.return();
 		});
 
@@ -56,6 +63,14 @@ class MysqlDatabase {
 
 	query(query, values, cb) {
 		return this._db.query(query, values, cb);
+	}
+
+	queryAsync(query, values) {
+		return new Promise((resolve, reject) => {
+			this.query(query, values, (err, res) => {
+				resolve(res);
+			});
+		});
 	}
 
 	/**
@@ -98,20 +113,32 @@ class MysqlDatabase {
 
 	/**
 	 * Begins the database transaction
+	 * @param {Function} cb - the callback to call. Should return 'false' if
+	 * 	transaction should be rolled back
 	 */
-	beginTransaction() {
+	execTransaction(cb) {
 		// TODO GG: port the nested trasactions code here
 		if(this._transacted == 0) {
 			// Create another connection
-			const trxDb = new MysqlDatabase(mysql.createConnection(Meteor.settings.mysql));
+			//const trxDb = new MysqlDatabase(mysql.createConnection(Meteor.settings.mysql));
+			const trxDb = this;
 
-			trxDb.querySync("BEGIN");
+			trxDb.querySync("START TRANSACTION  /* from trx */");
 			trxDb._transacted++;
 
-			// Close connections on hot code push
-			process.on('SIGTERM', this.closeAndExit);
-			// Close connections on exit (ctrl + c)
-			process.on('SIGINT', this.closeAndExit);
+			let res = false;
+			try {
+				res = cb(this);
+			} catch(ex) {
+				trxDb.rollback();
+				throw ex;
+			}
+
+			if(res === false) {
+				trxDb.rollback();
+			} else {
+				trxDb.commit();
+			}
 
 			return trxDb;
 		}
@@ -123,10 +150,7 @@ class MysqlDatabase {
 	commit() {
 		if(this._transacted > 0) {
 			this._transacted--;
-			this.querySync("COMMIT");
-			this._db.destroy();
-
-			this.removeHandlers();
+			this.querySync("COMMIT /* from trx */");
 		}
 	}
 
@@ -136,10 +160,7 @@ class MysqlDatabase {
 	rollback() {
 		if(this._transacted > 0) {
 			this._transacted--;
-			this.querySync("ROLLBACK");
-			this._db.destroy();
-
-			this.removeHandlers();
+			this.querySync("ROLLBACK /* from trx */");
 		}
 	}
 
@@ -148,9 +169,25 @@ class MysqlDatabase {
 		this.removeHandlers();
 	}
 
-	removeHandlers() {
-		process.removeListener('SIGTERM', this.closeAndExit);
-		process.removeListener('SIGINT', this.closeAndExit);
+
+	/**
+	 * The connection configuration for globalDbh
+	 * @param config
+	 */
+	static globalConfig(config) {
+		globalConfig = config;
+	}
+
+	/**
+	 * The connection factory. Creates a global connection to be used by default
+	 */
+	static globalDbh() {
+		if(!globalDbh) {
+			globalDbh = new MysqlDatabase(globalConfig);
+			globalDbh.connectSync();
+		}
+
+		return globalDbh;
 	}
 }
 

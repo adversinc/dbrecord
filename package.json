@@ -4,7 +4,7 @@
   "description": "The MySQL active record base",
   "main": "lib/index.js",
   "scripts": {
-    "compile": "babel --presets es2015 -d lib/ src/",
+    "compile": "babel --presets es2015 --source-maps -d lib/ src/",
     "prepare": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,7 +28,8 @@
     "config": "^1.30.0",
     "mocha": "^5.0.5",
     "mocha-fibers": "^1.1.1",
-    "promise-mysql": "^3.2.1"
+    "promise-mysql": "^3.2.1",
+    "source-map-support": "^0.5.4"
   },
   "dependencies": {
     "fibers": "^2.0.0",
