@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adversinc/meteor-smart-router.git"
+    "url": "git+https://github.com/adversinc/dbrecord.git"
   },
   "keywords": [
     "active record", "mysql", "fibers", "synchronous", "meteor", "meteorjs"
