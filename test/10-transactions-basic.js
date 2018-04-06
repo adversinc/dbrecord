@@ -77,18 +77,7 @@ describe('DbRecord transactions', function() {
 			return false;
 		});
 
-		let notexists = false;
-		try {
-			const obj2 = new TestRecord({id: objId});
-		} catch(ex) {
-			if(ex == "E_DB_NO_OBJECT") {
-				notexists = true;
-			} else {
-				throw ex;
-			}
-		}
-
-		assert.ok(notexists, "Object should not exist");
+		assert.ok(TestRecord.tryCreate({ id: objId }) === null, "Object should not exist");
 	});
 
 

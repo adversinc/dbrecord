@@ -1,5 +1,5 @@
 "use strict";
-const DbRecord = require('../../lib/DbRecord').DbRecord;
+const DbRecord = require('../../lib/DbRecord').default;
 
 const TABLE_NAME = "dbrecord_test";
 
