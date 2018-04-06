@@ -6,6 +6,7 @@ const TABLE_NAME = "dbrecord_test";
 class TestRecord extends DbRecord {
 	_table() { return "tests." + TABLE_NAME; }
 	_locatefield() { return "id"; }
+	_keys() { return ["field2"]; }
 
 	/**
 	 * Creates record instance

@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "scripts": {
@@ -34,6 +34,7 @@
   "dependencies": {
     "continuation-local-storage": "^3.2.1",
     "fibers": "^2.0.0",
+    "lodash": "^4.17.5",
     "mysql": "^2.15.0"
   }
 }

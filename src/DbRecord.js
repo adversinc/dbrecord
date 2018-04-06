@@ -43,7 +43,7 @@ export default class DbRecord {
 		try {
 			return new this(options);
 		} catch(ex) {
-			if(ex.error = "E_DB_NO_OBJECT") { return null; }
+			if(ex.message == "E_DB_NO_OBJECT") { return null; }
 			else { throw ex; }
 		}
 	}
