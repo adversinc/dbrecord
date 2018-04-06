@@ -1,18 +1,19 @@
-The MySQL active record base class
+The MySQL active record base class.
 
-# Inheriting classes
+The instance of the class represents the database record. It can be used
+in to reading and write data, modify fields and so on.
 
-Descendant classes has to provide at least following functions:
+#	USAGE
+
+The descendant class has to be created to represent the specific database object.
+Descendant classe has to provide at least following functions:
 
 * _table() { return "db-table-name"; }
 * _locatefield() { return "unique-id-field-name"; }
 
-All other db integration is being performed by this class;
+Optional:
 
-#	USAGE
-
-The instance of the class represents the database record. It can be used
-in two ways: reading data and writing data (and also mixed read/write).
+* _keys() { return [ "secondary_key1", "secondary_key2", ... ]; }
 
 ## READING RECORDS
 
