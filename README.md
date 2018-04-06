@@ -16,10 +16,17 @@ in two ways: reading data and writing data (and also mixed read/write).
 
 ## READING RECORDS
 
+### Records by primary key
+
 To read existing record, the unique record id has to be passed to the class
 constructor: var obj = new InheritedClass({ uniqueFieldName: 11111 }). After reading
 the record, class will create the required get/set functions to access
 database row fields (e.g. let v = obj->some_field())
+
+### Records by secondary keys
+
+The record can be created by secondary key. The list of secondary keys is to
+be provided in _keys() method, which returns the array of field names.
 
 ## WRITING RECORDS
 
