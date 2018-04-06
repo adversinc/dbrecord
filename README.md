@@ -1,7 +1,12 @@
-The MySQL active record base class.
+The MySQL active record base class with a synchronous database access by using
+Futures.
 
 The instance of the class represents the database record. It can be used
 in to reading and write data, modify fields and so on.
+
+Important: the code has to run within a Fiber for Futures to work. This can be
+archived either manually or by using Fiber-powered framework (like Meteor). The
+class has been designed to use with Meteor.
 
 #	USAGE
 
