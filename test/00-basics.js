@@ -111,5 +111,19 @@ describe('DbRecord basic ops', function() {
 
 		assert.ok(obj === null);
 	});
+
+	//
+	//
+	it('should remove itself', function() {
+		dbh.querySync(`INSERT INTO dbrecord_test SET id=3,name=?`, [this.test.fullTitle()]);
+
+		let obj = TestRecord.tryCreate({ id: 3 });
+		assert.ok(obj !== null);
+
+		obj.deleteRecord();
+
+		let obj2 = TestRecord.tryCreate({ id: 3 });
+		assert.ok(obj2 === null);
+	});
 });
 
