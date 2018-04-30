@@ -4,7 +4,7 @@ import MysqlDatabase from "./MysqlDatabase";
  * Represents the database record class.
 **/
 export default class DbRecord {
-	_keys() { return []; }
+	static _keys() { return []; }
 
 	/**
 	 * Creates the class instance. If options.${_locatefield()} parameter is specified,
@@ -20,8 +20,8 @@ export default class DbRecord {
 		this._raw = {};
 		this._changes = {};
 
-		this._tableName = this._table();
-		this._locateField = this._locatefield();
+		this._tableName = this.constructor._table();
+		this._locateField = this.constructor._locatefield();
 
 		// Use either locally provided or database handler factory
 		if(options.dbh) {
@@ -109,7 +109,7 @@ export default class DbRecord {
 	 */
 	_init(options) {
 		let byKey = null;
-		this._keys().forEach((k) => {
+		this.constructor._keys().forEach((k) => {
 			if(options[k]) { byKey = k; }
 		});
 
@@ -196,8 +196,67 @@ export default class DbRecord {
 	 * are being performed, they are up to caller.
 	 */
 	deleteRecord() {
-		this._dbh.querySync(`DELETE FROM ${this._table()} WHERE ${this._locatefield()} = ?`,
-			[ (this[this._locatefield()])() ]);
+		this._dbh.querySync(`DELETE FROM ${this._tableName} WHERE ${this._locateField} = ?`,
+			[ this[this._locateField]() ]);
+	}
+
+	/**
+	 * Runs through database objects according the options, and calls the
+	 * callback routine for each.
+	 *
+	 * @param options
+	 * @param {Function} cb - the callback function, it receives two arguments:
+	 * 	the current iteration DbRecord and the "options" object
+	 */
+	static forEach(options, cb) {
+		let sql = `SELECT ${this._locatefield()} FROM ${this._table()}`;
+		const where = [];
+		const qparam = [];
+
+		// WHERE fields
+		Object.keys(options).forEach((k) => {
+			if(k.match(/[^a-z0-9._]/)) { return; }
+
+			where.push(`${k}=?`);
+			qparam.push(options[k]);
+		});
+
+		if(where.length > 0) {
+			sql += "WHERE " + where.join(" AND ");
+		}
+
+		// LIMIT
+		if(options.LIMIT && !options.LIMIT.match(/[^0-9, ]/)) {
+			sql += "LIMIT " + options.LIMIT;
+		}
+
+		if(options.DEBUG_SQL_QUERY) {
+			console.log(sql);
+		}
+
+		//
+		// Iterate
+		const _dbh = MysqlDatabase.masterDbh();
+		const rows = _dbh.querySync(sql, qparam);
+		options.TOTAL = rows.length;
+
+		if(cb) {
+			options.COUNTER = 0;
+
+			rows.forEach((row) => {
+				options.COUNTER++;
+
+				const o = {};
+				o[this._locatefield()] = row[this._locatefield()];
+				const obj = new this(o);
+
+				cb(obj, options);
+			});
+		} else {
+			options.COUNTER = options.TOTAL;
+		}
+
+		return options.COUNTER;
 	}
 }
 

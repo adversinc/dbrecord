@@ -13,11 +13,11 @@ class has been designed to use with Meteor.
 ```javascript
 class MyObject extends DbRecord {
 	// Mandatory 
-	_table() { return "mydb.myobjects"; }
-	_locatefield() { return "id"; }
+	static _table() { return "mydb.myobjects"; }
+	static _locatefield() { return "id"; }
 	
 	// Optional
-	_keys() { return [ "secondary_id" ]; }
+	static _keys() { return [ "secondary_id" ]; }
 }
 
 // Create record
@@ -119,6 +119,62 @@ The record can be removed by calling deleteRecord():
 let obj = new SomeObject();
 obj->deleteRecord();
 ```
+
+## Fetching records
+
+To fetch records from the database table the static forEach() function 
+is being used:
+
+```javascript
+const cnt = SomeObject.forEach({options}, function(itm, options) {
+	...
+});
+```
+
+The _options_ can contain:
+
+1. table field names to use in selection query
+1. options to tune the iteration process
+1. other options to be passed to callback
+
+The callback function receives _itm_ and _options_ arguments which
+are the object being currently processed and forEach options object.
+
+The function returns the number of objects processed (this _can_
+differ from number of objects found, see COUNTER below).
+
+## Field names for query
+
+All _option_ entries which match the /[a-z0-9_.]/ pattern are
+being considered as query fields to use in WHERE part of the query:
+
+```javascript
+SomeObject.forEach({ name: "Some name" });
+// turns to SELECT * FROM objects WHERE name="Some name"
+```
+
+Node: this is an experimental behavior.
+
+## Options to tune the iteration
+
+The following options can be used:
+
+* WHERE - appended to the query's WHERE as is
+* LIMIT - used as a query's LIMIT
+* ORDERBY - used as a query's ORDER BY
+* DEBUG_SQL_QUERY - output the resulting SQL query before launching it
+
+## Options passed to the callback
+
+The original _options_ object is being passed to the callback. Callback
+is free to modify it.
+
+During the iteration, forEach automatically sets the following keys:
+
+* COUNTER - the number of records currently processed. This value is
+being returned as a forEach result at the end. If callback
+wants to affect the return value, options.COUNTER can be altered.
+* TOTAL - the total number of records found in QUERY
 
 # To be moved:
  

@@ -4,9 +4,9 @@ const DbRecord = require('../../lib/DbRecord').default;
 const TABLE_NAME = "dbrecord_test";
 
 class TestRecord extends DbRecord {
-	_table() { return "tests." + TABLE_NAME; }
-	_locatefield() { return "id"; }
-	_keys() { return ["field2"]; }
+	static _table() { return "tests." + TABLE_NAME; }
+	static _locatefield() { return "id"; }
+	static _keys() { return ["field2"]; }
 
 	/**
 	 * Creates record instance

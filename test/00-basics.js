@@ -30,7 +30,7 @@ describe('DbRecord basic ops', function() {
 		obj.commit();
 
 		// Checks
-		const TABLE_NAME  = obj._table();
+		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
 		assert.deepEqual(row, [ { id: 1, name: this.test.fullTitle(), field2: null } ]);
 	});
