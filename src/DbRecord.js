@@ -222,12 +222,18 @@ export default class DbRecord {
 		});
 
 		if(where.length > 0) {
-			sql += "WHERE " + where.join(" AND ");
+			sql += " WHERE " + where.join(" AND ");
+		}
+
+
+		// ORDER BY
+		if(options.ORDERBY && !options.ORDERBY.match(/[^a-zA-Z0-9 ><-]/)) {
+			sql += " ORDER BY " + options.ORDERBY;
 		}
 
 		// LIMIT
-		if(options.LIMIT && !options.LIMIT.match(/[^0-9, ]/)) {
-			sql += "LIMIT " + options.LIMIT;
+		if(options.LIMIT && !options.LIMIT.toString().match(/[^0-9, ]/)) {
+			sql += " LIMIT " + options.LIMIT;
 		}
 
 		if(options.DEBUG_SQL_QUERY) {
