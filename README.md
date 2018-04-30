@@ -8,7 +8,27 @@ Important: the code has to run within a Fiber for Futures to work. This can be
 archived either manually or by using Fiber-powered framework (like Meteor). The
 class has been designed to use with Meteor.
 
-#	USAGE
+#	Usage
+
+```javascript
+class MyObject extends DbRecord {
+	// Mandatory 
+	_table() { return "mydb.myobjects"; }
+	_locatefield() { return "id"; }
+	
+	// Optional
+	_keys() { return [ "secondary_id" ]; }
+}
+
+// Create record
+const obj = new MyObject();
+obj->some_field("value");
+obj->commit();
+
+// Use record
+const obj = new MyObject({ id: 1 });
+console.log(obj->some_field());
+```
 
 The descendant class has to be created to represent the specific database object.
 Descendant classe has to provide at least following functions:
@@ -20,12 +40,18 @@ Optional:
 
 * _keys() { return [ "secondary_key1", "secondary_key2", ... ]; }
 
-## READING RECORDS
+## Reading records
 
 ### Records by primary key
 
 To read existing record, the unique record id has to be passed to the class
-constructor: var obj = new InheritedClass({ uniqueFieldName: 11111 }). After reading
+constructor: 
+
+```javascript
+var obj = new InheritedClass({ uniqueFieldName: 11111 }).
+```
+ 
+After reading
 the record, class will create the required get/set functions to access
 database row fields (e.g. let v = obj->some_field())
 
@@ -34,7 +60,16 @@ database row fields (e.g. let v = obj->some_field())
 The record can be created by secondary key. The list of secondary keys is to
 be provided in _keys() method, which returns the array of field names.
 
-## WRITING RECORDS
+### Missing records
+
+The constructor will throw an exception if the record being located
+is not found. 
+
+If exception behavior is not desired, the tryCreate() static method
+can be called. It accepts the same arguments as constructor and
+returns either a new object created or null. 
+
+## Writing records
 
 Object can be modified by passing the new field value to get/set function:
 
@@ -50,16 +85,16 @@ obj->some_field2("new value 2");
 ...
 obj->commit();
 
-## CREATING RECORDS
+## Creating records
 
 To create the new record, the constructor is being called without the
-locate-field argument: let obj = InheritedClass->();
+locate-field argument: let obj = new InheritedClass();
 
 The newly created object has auto-commit disabled, so setting the necessary
 fields has to be ended by calling commit():
 
-```
-let obj = InheritedClass->();
+```javascript
+let obj = new InheritedClass();
 obj->some_field1("new value 1");
 obj->some_field2("new value 2");
 ...
@@ -67,13 +102,22 @@ obj->commit();
 ```
 
 Until commit() is called, the value of locate-field of the new record is
-not know (obviously). During the commit(), class reads the new record ID
-from mysql and sets it accordingly:
+not know (obviously). During the commit(), class receives the new 
+record ID from mysql and sets it accordingly:
 
-```
+```javascript
 ...
 obj->commit();
 console.log("New object ID", obj->id());
+```
+
+## Removing records
+
+The record can be removed by calling deleteRecord():
+
+```javascript
+let obj = new SomeObject();
+obj->deleteRecord();
 ```
 
 # To be moved:
