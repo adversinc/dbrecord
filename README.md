@@ -145,7 +145,8 @@ differ from number of objects found, see COUNTER below).
 
 ## Field names for query
 
-All _option_ entries which match the /[a-z0-9_.]/ pattern are
+All _option_ entries which match the /[a-z0-9_.]/ pattern (thus, only
+lower-case letters) are
 being considered as query fields to use in WHERE part of the query:
 
 ```javascript
@@ -156,6 +157,9 @@ SomeObject.forEach({ name: "Some name" });
 Node: this is an experimental behavior.
 
 ## Options to tune the iteration
+
+These options are supposed to be upper-case or camel-case (to
+have a capital case letter and distinguish them from field names).
 
 The following options can be used:
 
