@@ -143,7 +143,7 @@ are the object being currently processed and forEach options object.
 The function returns the number of objects processed (this _can_
 differ from number of objects found, see COUNTER below).
 
-## Field names for query
+### Field names for query
 
 All _option_ entries which match the /[a-z0-9_.]/ pattern (thus, only
 lower-case letters) are
@@ -156,7 +156,7 @@ SomeObject.forEach({ name: "Some name" });
 
 Node: this is an experimental behavior.
 
-## Options to tune the iteration
+### Options to tune the iteration
 
 These options are supposed to be upper-case or camel-case (to
 have a capital case letter and distinguish them from field names).
@@ -168,7 +168,7 @@ The following options can be used:
 * ORDERBY - used as a query's ORDER BY
 * DEBUG_SQL_QUERY - output the resulting SQL query before launching it
 
-## Options passed to the callback
+### Options passed to the callback
 
 The original _options_ object is being passed to the callback. Callback
 is free to modify it.
