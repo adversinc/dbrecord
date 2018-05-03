@@ -15,6 +15,15 @@ class TestRecord extends DbRecord {
 	 */
 	constructor(options = {}) {
 		super(options);
+
+		this._managedCalled = false;
+	}
+
+	managed_field(value) {
+		console.log("managed_field called");
+
+		this._managedCalled = true;
+		return this._super.managed_field(value);
 	}
 
 	/**
@@ -30,6 +39,7 @@ class TestRecord extends DbRecord {
 				name varchar(255) NULL,
 				field2 int NULL,
 				field3 varchar(255) DEFAULT NULL,
+				managed_field varchar(255) DEFAULT NULL,
 				PRIMARY KEY (id)
 			)
 		`);

@@ -42,8 +42,6 @@ Optional:
 
 ## Reading records
 
-
-
 ### Records by primary key
 
 To read existing record, the unique record id has to be passed to the class
@@ -95,28 +93,12 @@ If exception behavior is not desired, the tryCreate() static method
 can be called. It accepts the same arguments as constructor and
 returns either a new object created or null. 
 
-## Writing records
-
-Object can be modified by passing the new field value to get/set function:
-
- obj->some_field("new value");
-
-By default, objects save new values to the db on each call. If multiple
-fields are supposed to be set, the auto-commit feature can be turned off,
-and commit() method called after finishing updates:
-
-obj->autocommit(false);
-obj->some_field1("new value 1");
-obj->some_field2("new value 2");
-...
-obj->commit();
-
 ## Creating records
 
 To create the new record, the constructor is being called without the
 locate-field argument: let obj = new InheritedClass();
 
-The newly created object has auto-commit disabled, so setting the necessary
+The newly created object has auto-commit disabled (see below), so setting the necessary
 fields has to be ended by calling commit():
 
 ```javascript
@@ -146,7 +128,67 @@ let obj = new SomeObject();
 obj->deleteRecord();
 ```
 
-## Fetching records
+## Accessing record fields
+
+During initialization (both while creating an empty object and reading an
+existing one) the instance of the class gets methods equal to the database
+fields.
+
+E.g. the following table structure:
+
+* id
+* name
+* other_field
+
+will result in the following access methods generated:
+
+```javascript
+obj->id();
+obj->name();
+obj->other_field();
+```
+
+These fields can be used to read and write database fields:
+
+```javascript
+const v = obj->other_field();
+obj->name(v + 1);
+```
+
+### Committing changes to the database
+
+By default, all changes sent to the access methods are immediately automatically
+committed to the database. However, the commit can be delayed by setting the
+manual commit mode:
+
+```javascript
+obj->autocommit(false);
+obj->some_field1("new value 1");
+obj->some_field2("new value 2");
+...
+obj->commit();
+```
+
+For new records, the autocommit is disabled by default (see above).
+
+### Overriding access methods
+
+It is possible to override an access method:
+
+```javascript
+managed_field(value) {
+	console.log("managed_field called");
+
+	// Modify value when it is going to be set
+	if(value !== undefined) {
+		value += " (I am managed)";
+	}
+
+	return this._super.managed_field(value);
+}
+```
+
+## Going through multiple records
 
 To fetch records from the database table the static forEach() function 
 is being used:

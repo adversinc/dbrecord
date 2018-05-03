@@ -37,7 +37,8 @@ describe('DbRecord basic ops', function() {
 			id: 1,
 			name: this.test.fullTitle(),
 			field2: null,
-			field3: null
+			field3: null,
+			managed_field: null
 		} ]);
 	});
 
