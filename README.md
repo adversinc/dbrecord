@@ -188,6 +188,13 @@ managed_field(value) {
 }
 ```
 
+Since access methods are generated automatically, the first-level managed fields
+should call this._super.field_name(value) to access an original access method.
+
+This relates only to the first override. If access method is overriden twice
+or more, the latter overrides should use the regular JS super.field_name(value)
+call format.
+
 ## Going through multiple records
 
 To fetch records from the database table the static forEach() function 
