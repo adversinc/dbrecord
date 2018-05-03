@@ -1,9 +1,12 @@
 import MysqlDatabase from "./MysqlDatabase";
+const strcount = require('quickly-count-substrings');
 
 /**
  * Represents the database record class.
 **/
 export default class DbRecord {
+	static _table() { throw "DbRecord can't be created directly"; }
+	static _locatefield() { throw "DbRecord can't be created directly"; }
 	static _keys() { return []; }
 
 	/**
@@ -109,8 +112,25 @@ export default class DbRecord {
 	 */
 	_init(options) {
 		let byKey = null;
-		this.constructor._keys().forEach((k) => {
-			if(options[k]) { byKey = k; }
+		const keyArgs = [];
+
+		this.constructor._keys().sort(commaSort).forEach((k) => {
+			// console.log("key", k);
+			if(byKey != null) { return; }
+
+			// Check if all key parts are present
+			let fits = true;
+			k.split(",").forEach((kpart) => {
+				if(!(kpart in options)) { fits = false; }
+			});
+
+			if(fits) {
+				// Key fits, remember it and its arguments
+				byKey = k.split(",");
+				byKey.forEach((kpart) => {
+					keyArgs.push(options[kpart]);
+				});
+			}
 		});
 
 		// if "_locateField" is set, then we need to read our data from the database
@@ -118,7 +138,7 @@ export default class DbRecord {
 			this._read(options[this._locateField]);
 		}
 		else if(byKey) {
-			this._read(options[byKey], byKey);
+			this._readByKey(byKey, keyArgs);
 		}
 		else {
 			// else create a new record: read the table info and build access methods
@@ -141,6 +161,31 @@ export default class DbRecord {
 
 		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${field}=? LIMIT 1`,
 			[locateValue]);
+		return this._createFromRows(rows);
+	}
+
+
+	/**
+	 * Does the same work as _read, but accepts the secondary keys and values arrays
+	 * @param keys {Array}
+	 * @param values {Array}
+	 * @private
+	 */
+	_readByKey(keys, values) {
+		const fields = keys.join("=? AND ") + "=?";
+
+		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${fields} LIMIT 1`,
+			values);
+		return this._createFromRows(rows);
+	}
+
+
+	/**
+	 * Initialize object and methods from rows array
+	 * @param rows
+	 * @private
+	 */
+	_createFromRows(rows) {
 		if(rows.length == 0) {
 			throw new Error("E_DB_NO_OBJECT");
 		}
@@ -266,3 +311,14 @@ export default class DbRecord {
 	}
 }
 
+
+/**
+ * The sorting function to get entries with more commas first
+ * @param a
+ * @param b
+ */
+function commaSort(a,b) {
+	const ca = strcount(a, ",");
+	const cb = strcount(b, ",");
+	return ca>cb? -1 : 1;
+}

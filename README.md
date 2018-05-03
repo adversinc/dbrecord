@@ -12,7 +12,7 @@ class has been designed to use with Meteor.
 
 ```javascript
 class MyObject extends DbRecord {
-	// Mandatory 
+	// Mandatory
 	static _table() { return "mydb.myobjects"; }
 	static _locatefield() { return "id"; }
 	
@@ -42,23 +42,49 @@ Optional:
 
 ## Reading records
 
+
+
 ### Records by primary key
 
 To read existing record, the unique record id has to be passed to the class
 constructor: 
 
 ```javascript
-var obj = new InheritedClass({ uniqueFieldName: 11111 }).
+var obj = new InheritedClass({ uniqueFieldName: 11111 });
 ```
  
-After reading
-the record, class will create the required get/set functions to access
+After reading the record, the class will create the required get/set functions to access
 database row fields (e.g. let v = obj->some_field())
 
 ### Records by secondary keys
 
-The record can be created by secondary key. The list of secondary keys is to
-be provided in _keys() method, which returns the array of field names.
+The record can be created by secondary key. A single field:
+
+```javascript
+class MyObject extends DbRecord {
+	...
+	static _keys() { return [ "short" ]; }
+	...
+}
+
+var obj = new myObject({ shortname: "short" });
+```
+
+Or a complex key:
+
+```javascript
+class MyObject extends DbRecord {
+	...
+	static _keys() { return [ "field1,field2" ]; }
+	...
+}
+
+var obj = new myObject({ field1: "one", field2: "two" });
+```
+
+The list of secondary keys is to be provided in _keys() method, which returns
+the array of field names. Complex keys are being returned as a comma-separated
+string.
 
 ### Missing records
 

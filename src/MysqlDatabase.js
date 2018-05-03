@@ -66,7 +66,7 @@ class MysqlDatabase {
 	connect(cb) {
 		if(connectionPool) {
 			connectionPool.getConnection((err, dbh) => {
-				console.log("connection taken from pool");
+				// console.log("connection taken from pool");
 				this._createdFromPool = true;
 				this._db = dbh;
 
@@ -189,7 +189,7 @@ class MysqlDatabase {
 			trxDb.querySync("START TRANSACTION  /* from trx */");
 		}
 
-		console.log("before context");
+		// console.log("before context");
 		// Execute transaction and create a running context for it
 		trxContext.run(() => {
 			trxContext.set("dbh", trxDb);

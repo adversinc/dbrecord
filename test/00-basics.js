@@ -12,6 +12,7 @@ describe('DbRecord basic ops', function() {
 	let dbh = null;
 	before(function() {
 		MysqlDatabase.masterConfig(config.get("mysql"));
+
 		dbh = MysqlDatabase.masterDbh();
 	});
 	after(() => {
@@ -32,7 +33,12 @@ describe('DbRecord basic ops', function() {
 		// Checks
 		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
-		assert.deepEqual(row, [ { id: 1, name: this.test.fullTitle(), field2: null } ]);
+		assert.deepEqual(row, [ {
+			id: 1,
+			name: this.test.fullTitle(),
+			field2: null,
+			field3: null
+		} ]);
 	});
 
 	//
@@ -84,6 +90,52 @@ describe('DbRecord basic ops', function() {
 		let error = {};
 		try {
 			let obj = new TestRecord({ field2: 10000 });
+		} catch(ex) {
+			error = ex;
+		}
+
+		assert.equal(error.message, "E_DB_NO_OBJECT");
+	});
+
+	//
+	//
+	it('should get created by complex secondary key', function() {
+		// IMPORTANT: the test relies on a row insertion order (the row inserted
+		// first is supposed to be returned with LIMIT 1
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[ Math.random(), 100, "First" ]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[this.test.fullTitle(), 200, "Second"]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[this.test.fullTitle(), 200, "Third"]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[ Math.random(), 300, "Fourth" ]);
+
+		const obj = new TestRecord({ field2: 200, field3: "Third" });
+
+		assert.deepEqual(
+			{ name: obj.name(), field2: obj.field2(), field3: obj.field3() },
+			{ name: this.test.fullTitle(), field2: 200, field3: "Third" }
+		);
+	});
+
+	//
+	//
+	it('should fail by unexisting complex secondary key', function() {
+		// IMPORTANT: the test relies on a row insertion order (the row inserted
+		// first is supposed to be returned with LIMIT 1
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[ Math.random(), 100, "First" ]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[this.test.fullTitle(), 200, "Second"]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[this.test.fullTitle(), 200, "Third"]);
+		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
+			[ Math.random(), 300, "Fourth" ]);
+
+		let error = {};
+		try {
+			let obj = new TestRecord({ field2: 200, field3: "One hundreds" });
 		} catch(ex) {
 			error = ex;
 		}

@@ -3,10 +3,11 @@ const DbRecord = require('../../lib/DbRecord').default;
 
 const TABLE_NAME = "dbrecord_test";
 
+
 class TestRecord extends DbRecord {
 	static _table() { return "tests." + TABLE_NAME; }
 	static _locatefield() { return "id"; }
-	static _keys() { return ["field2"]; }
+	static _keys() { return ["field2", "field2,field3", "name,field2,field3"]; }
 
 	/**
 	 * Creates record instance
@@ -28,6 +29,7 @@ class TestRecord extends DbRecord {
 				id int UNSIGNED NOT NULL AUTO_INCREMENT,
 				name varchar(255) NULL,
 				field2 int NULL,
+				field3 varchar(255) DEFAULT NULL,
 				PRIMARY KEY (id)
 			)
 		`);
