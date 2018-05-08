@@ -235,7 +235,7 @@ export default class DbRecord {
 	 * @private
 	 */
 	_createAccessMethod(field) {
-		console.log("creating", field, typeof this[field]);
+		//console.log("creating", field, typeof this[field]);
 		const f = (value = undefined) => { return this._accessField(field, value); };
 
 		// If access function already exists, do not overwrite it. Instead, add a function
