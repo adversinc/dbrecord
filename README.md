@@ -255,6 +255,16 @@ being returned as a forEach result at the end. If callback
 wants to affect the return value, options.COUNTER can be altered.
 * TOTAL - the total number of records found in QUERY
 
+## Other
+
+### Static access to database handle
+
+Sometimes it is required to access the current database handle from 
+within the static methods (for example, when creating db entry
+from a static create()).
+
+To get the dbh handle, the masterDbh() static function can be used.
+
 # To be moved:
  
 The MySQL connection wrapper which provides the following features:

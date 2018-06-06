@@ -258,6 +258,14 @@ export default class DbRecord {
 	}
 
 	/**
+	 * Returns master database handle currently in-use. To be used in static
+	 * methods of DbRecord
+	 */
+	static masterDbh() {
+		return MysqlDatabase.masterDbh();
+	}
+
+	/**
 	 * Runs through database objects according the options, and calls the
 	 * callback routine for each.
 	 *
