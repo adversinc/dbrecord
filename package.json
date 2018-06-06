@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "1.4.2",
+  "version": "1.4.4",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "scripts": {

@@ -134,8 +134,8 @@ class MysqlDatabase {
 
 		this._db.query(query, values, (err, q) => {
 			if(err) {
-				throw err;
-				future.return(err);
+				//throw err;
+				future.throw(err);
 			} else {
 				future.return(q);
 			}
