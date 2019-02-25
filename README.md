@@ -28,6 +28,17 @@ obj->commit();
 // Use record
 const obj = new MyObject({ id: 1 });
 console.log(obj->some_field());
+
+// Process records in a transaction
+dbh.execTransaction((trxDbh) => {
+	const obj1 = new ObjectOne();
+	obj1.name("my name");
+	obj1.commit();
+	
+	const obj2 = new ObjectTwo();
+	obj2.parent(obj1->id());
+	obj2.commit();
+});
 ```
 
 The descendant class has to be created to represent the specific database object.
@@ -254,6 +265,65 @@ During the iteration, forEach automatically sets the following keys:
 being returned as a forEach result at the end. If callback
 wants to affect the return value, options.COUNTER can be altered.
 * TOTAL - the total number of records found in QUERY
+
+## Transactions
+
+DbRecord supports transactions (except the nested transactions, this
+is to be done). To process operations within the SQL transaction, wrap
+the code to execTransaction:
+
+```js
+dbh.execTransaction((trxDbh) => {
+	const obj1 = new ObjectOne();
+	obj1.name("my name");
+	obj1.commit();
+	
+	const obj2 = new ObjectTwo();
+	obj2.parent(obj1->id());
+	obj2.commit();
+});
+```
+
+This will either process the whole block as a single database transaction.
+If any of the queries fail, or code throws an exception, the transaction
+is being rolled back.
+
+Wrap the call to try...catch to catch the exceptions in a callback.
+
+### Database connection sharing 
+
+Since NodeJS shares the same MySQL connection across all executing code 
+threads, the separate db connection is required. It is passed to the 
+callback as _trxDbh_ argument.
+
+_trxDbh_ is being used internally by _DbRecord_ instances and usually is
+not required within the transaction function.
+
+### Object within the transaction
+
+Since all objects within the transactions should use the
+transacted connection, all _DbRecord_ objects should be local variables.
+
+This code **MAY NOT** work as expected:
+
+```js
+const obj = new ObjectOne(); // obj uses dbh_1 connection
+obj.name("original name")
+
+dbh.execTransaction((dbh_2) => {
+	// dbh_2 is transacted
+
+	obj.name("new name"); // <== This still uses dbh_1, which is not transacted
+	throw "Something happened!"; // Try to rollback
+});
+
+console.log(obj.name());
+// > new name
+// The db changes were not rolled back since they were made through dbh_1
+```
+
+The _obj_ is being created outside of transaction and may use the wrong 
+database connection.
 
 ## Other
 
