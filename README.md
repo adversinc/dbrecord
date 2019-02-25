@@ -325,6 +325,17 @@ console.log(obj.name());
 The _obj_ is being created outside of transaction and may use the wrong 
 database connection.
 
+### Getting database handle
+
+The database handle for the transaction can be obtained from any
+DbRecord object by calling static method masterDbh():
+
+```js
+MyObject.masterDbh().execTransaction(() => {
+	...;
+});
+```
+
 ## Other
 
 ### Static access to database handle
