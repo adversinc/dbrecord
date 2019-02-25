@@ -6,7 +6,8 @@ const
 	config = require("config"),
 	Future = require('fibers/future'),
 	Fiber = require('fibers'),
-	lodashMerge = require('lodash/merge');
+	lodashMerge = require('lodash/merge'),
+	mlog = require('mocha-logger');
 
 // Libs to test
 const MysqlDatabase = require("../lib/MysqlDatabase").default;
@@ -20,7 +21,7 @@ describe('DbRecord transactions pool', function() {
 		const c = lodashMerge({}, config.get("mysql"));
 		// Should be at least 3: one main connection, and 1 for each thread in test
 		if(c.connectionLimit < 3) {
-			console.warn("c.connectionLimit increased to 3");
+			mlog.log("c.connectionLimit increased to 3");
 			c.connectionLimit = 3;
 		}
 
@@ -99,31 +100,29 @@ describe('DbRecord transactions pool', function() {
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
 				sleep(500);
-				console.log("thread 2 starting");
+				mlog.log("thread 2 starting");
 
 				const res = dbh.getRowSync("SELECT COUNT(*) cnt FROM dbrecord_test");
 				rowsFound = res.cnt;
-				console.log("thread 2 rows found: ", rowsFound.cnt);
+				mlog.log("thread 2 rows found: ", rowsFound.cnt);
 
-				console.log("thread 2 exiting");
+				mlog.log("thread 2 exiting");
 			});
 		}).detach();
 
 		// Start thread 1 which will insert 1 record immediately and then sleep
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
-			console.log("thread 1 starting");
+			mlog.log("thread 1 starting");
 			dbh.querySync("INSERT INTO dbrecord_test SET name=?, field2=?",
 				[ 'thread 1 ', Math.random()*1000000 ]);
 
-			console.log("thread 1 has added a 2nd record");
+			mlog.log("thread 1 has added a 2nd record");
 			sleep(1000);
-			console.log("thread 1 exiting");
+			mlog.log("thread 1 exiting");
 		});
 
 		sleep(1000);
-
-		console.log("tests completed");
 
 		// Checks
 		assert.equal(rowsFound, 1, "No trx overlap found");

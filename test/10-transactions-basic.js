@@ -6,7 +6,9 @@ const
 	config = require("config"),
 	Future = require('fibers/future'),
 	Fiber = require('fibers'),
-	lodashMerge = require('lodash/merge');
+	lodashMerge = require('lodash/merge'),
+	mlog = require('mocha-logger');
+
 
 // Libs to test
 const MysqlDatabase = require("../lib/MysqlDatabase").default;
@@ -62,7 +64,7 @@ describe('DbRecord transactions', function() {
 	//
 	it('should remove uncommitted', function() {
 		//dbh._db.on('enqueue', function(sequence) {
-		//	console.log("QUERY: ", sequence.sql);
+		//	mlog.log("QUERY: ", sequence.sql);
 		//});
 
 		TestRecord.createMockTable(dbh);
@@ -100,27 +102,27 @@ describe('DbRecord transactions', function() {
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
 				sleep(500);
-				console.log("thread 2 starting");
+				mlog.log("thread 2 starting");
 
 				const res = dbh.getRowSync("SELECT COUNT(*) cnt FROM dbrecord_test");
 				rowsFound = res.cnt;
-				console.log("thread 2 res: ", res);
+				mlog.log("thread 2 res: ", res);
 
-				console.log("thread 2 exiting");
+				mlog.log("thread 2 exiting");
 			});
 		}).detach();
 
 		// Start thread 1 which will insert 1 record immediately and then sleep
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
-			console.log("thread 1 starting");
+			mlog.log("thread 1 starting");
 			dbh.querySync("INSERT INTO dbrecord_test SET name='thread 1'");
 			sleep(1000);
-			console.log("thread 1 exiting");
+			mlog.log("thread 1 exiting");
 		});
 
 		sleep(1000);
-		console.log("tests completed");
+		mlog.log("tests completed");
 
 		// Checks
 		assert.equal(rowsFound, 1, "Found trx overlap");

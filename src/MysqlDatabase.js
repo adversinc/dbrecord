@@ -171,14 +171,14 @@ class MysqlDatabase {
 	 */
 	execTransaction(cb) {
 		// TODO GG: port the nested trasactions code here
-		// Create another connection
-		//const trxDb = new MysqlDatabase(mysql.createConnection(Meteor.settings.mysql));
+
 		let trxDb = null;
 
 		if(this._transacted > 0 || this._config.reuseConnection) {
 			// In a nested transaction, don't create a new connection
 			trxDb = this;
 		} else {
+			// console.log("Creating transaction connection");
 			trxDb = new MysqlDatabase(this._config);
 			trxDb._transacted = this._transacted;
 			trxDb.connectSync();
@@ -296,6 +296,8 @@ class MysqlDatabase {
 			masterDbh.destroy();
 			masterDbh = null;
 		}
+
+		this.destroyPoll();
 	}
 
 	/**
@@ -310,6 +312,14 @@ class MysqlDatabase {
 	static setupPool(config) {
 		this.masterConfig(config);
 		connectionPool = mysql.createPool(config);
+	}
+
+	static destroyPoll() {
+		if(connectionPool) {
+			connectionPool.end((err) => {
+				// console.log("connectionPool destroyed");
+			});
+		}
 	}
 }
 

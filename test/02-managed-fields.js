@@ -1,7 +1,8 @@
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
 const
 	assert = require('assert'),
-	config = require("config");
+	config = require("config"),
+	mlog = require('mocha-logger');
 
 // Libs to test
 const MysqlDatabase = require("../lib/MysqlDatabase").default;

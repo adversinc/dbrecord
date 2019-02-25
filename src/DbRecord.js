@@ -138,7 +138,7 @@ export default class DbRecord {
 		});
 
 		// if "_locateField" is set, then we need to read our data from the database
-		if(options[this._locateField]) {
+		if(options[this._locateField] !== undefined) {
 			this._read(options[this._locateField]);
 		}
 		else if(byKey) {
