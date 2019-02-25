@@ -272,7 +272,9 @@ class MysqlDatabase {
 	}
 
 	/**
-	 * The connection factory. Creates a global connection to be used by default
+	 * The connection factory. Creates a global connection to be used by default.
+	 *
+	 * @returns {MysqlDatabase} current mysql database connection class
 	 */
 	static masterDbh() {
 		// First try to get the local scope dbh of the current transaction

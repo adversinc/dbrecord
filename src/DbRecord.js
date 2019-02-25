@@ -260,6 +260,8 @@ export default class DbRecord {
 	/**
 	 * Returns master database handle currently in-use. To be used in static
 	 * methods of DbRecord
+	 *
+	 * @returns {MysqlDatabase} current mysql database connection class
 	 */
 	static masterDbh() {
 		return MysqlDatabase.masterDbh();
