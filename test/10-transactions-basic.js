@@ -11,7 +11,7 @@ const
 
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase").default;
+const MysqlDatabase = require("../lib/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 // Tests

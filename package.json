@@ -31,6 +31,7 @@
     "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "assert": "^1.4.1",
+    "babel-plugin-add-module-exports": "^1.0.2",
     "config": "^1.31.0",
     "mocha": "^6.0.1",
     "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",

@@ -4,7 +4,7 @@ const
 	config = require("config");
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase").default;
+const MysqlDatabase = require("../lib/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 // Tests
@@ -40,6 +40,24 @@ describe('DbRecord basic ops', function() {
 			field3: null,
 			managed_field: null
 		} ]);
+	});
+
+	//
+	//
+	it('should fail on a row duplicate', function() {
+		const obj1 = new TestRecord();
+		obj1.name(this.test.fullTitle());
+		obj1.unique_field("1");
+		obj1.commit();
+
+		assert.throws(() => {
+			const obj2 = new TestRecord();
+			obj2.name(this.test.fullTitle());
+			obj2.unique_field("1");
+			obj2.commit();
+		}, {
+			sqlMessage: "Duplicate entry '1' for key 'unique_field'"
+		});
 	});
 
 	//

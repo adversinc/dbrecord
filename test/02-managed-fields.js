@@ -5,11 +5,11 @@ const
 	mlog = require('mocha-logger');
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase").default;
+const MysqlDatabase = require("../lib/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 // Tests
-describe('DbRecord managed fields', function() {
+describe('DbRecord2 managed fields', function() {
 	let dbh = null;
 	before(function() {
 		MysqlDatabase.masterConfig(config.get("mysql"));

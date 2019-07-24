@@ -1,5 +1,5 @@
 "use strict";
-const DbRecord = require('../../lib/DbRecord').default;
+const DbRecord = require('../../lib/DbRecord');
 
 const TABLE_NAME = "dbrecord_test";
 
@@ -40,7 +40,10 @@ class TestRecord extends DbRecord {
 				field2 int NULL,
 				field3 varchar(255) DEFAULT NULL,
 				managed_field varchar(255) DEFAULT NULL,
-				PRIMARY KEY (id)
+				unique_field varchar(255) DEFAULT NULL,
+				
+				PRIMARY KEY (id),
+				UNIQUE KEY unique_field (unique_field)
 			)
 		`);
 	}
