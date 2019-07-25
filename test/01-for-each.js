@@ -141,5 +141,90 @@ describe('DbRecord record iteration', function() {
 		]);
 	});
 
+
+
+	it('should catch the iterator exception', function() {
+		// Create records
+		const source = [];
+		for(let i = 0; i < 5; i++) {
+			const obj = new TestRecord();
+
+			obj.name(this.test.fullTitle() + "#" + i);
+			obj.field2(i);
+			obj.commit();
+		}
+
+		// Checks
+		const ERROR = "Error in iterator";
+
+		assert.throws(() => {
+			TestRecord.forEach({
+				field2: 2,
+				DEBUG_SQL_QUERY: 1
+			}, (itm, options) => {
+				throw new Error(ERROR);
+			});
+		}, {
+			message: ERROR
+		});
+	});
+
+
+	it('should accept additional where conditions', function() {
+		// Create records
+		for(let i = 0; i < 10; i++) {
+			const obj = new TestRecord();
+
+			obj.name(this.test.fullTitle() + "#" + i);
+			obj.field2(parseInt(i/3));
+			obj.commit();
+		}
+
+		const n = TestRecord.forEach({
+			whereCond: [ "field2=2" ]
+		}, async (itm, options) => {
+			assert.equal(itm.field2(), 2);
+		});
+
+		assert.equal(n, 3);
+	});
+
+	it('should accept additional where conditions with whereParam', function() {
+		// Create records
+		for(let i = 0; i < 10; i++) {
+			const obj = new TestRecord();
+
+			obj.name(this.test.fullTitle() + "#" + i);
+			obj.field2(parseInt(i/3));
+		}
+
+		const n = TestRecord.forEach({
+			whereCond: [ "field2=?" ],
+			whereParam: [ 5 ]
+		});
+
+		assert.equal(n, 0);
+	});
+
+	it('should not clash on complex additional conditions', function() {
+		// Create records
+		for(let i = 0; i < 10; i++) {
+			const obj = new TestRecord();
+
+			obj.name(this.test.fullTitle() + "#" + i);
+			obj.field2(parseInt(i/3));
+		}
+
+		const n = TestRecord.forEach({
+			whereCond: [
+				"field2=?",
+				"field2=? OR field2=?"
+			],
+			whereParam: [ 1, 2, 3 ]
+		});
+
+		assert.equal(n, 0);
+	});
+
 });
 
