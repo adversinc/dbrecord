@@ -249,6 +249,10 @@ have a capital case letter and distinguish them from field names).
 
 The following options can be used:
 
+* whereCond - the array of string raw conditions which 
+will be added to the query 
+* whereParam - the array of values to replace "?" in whereCond
+conditions
 * WHERE - appended to the query's WHERE as is
 * LIMIT - used as a query's LIMIT
 * ORDERBY - used as a query's ORDER BY
