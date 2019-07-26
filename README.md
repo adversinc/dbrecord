@@ -340,6 +340,22 @@ MyObject.masterDbh().execTransaction(() => {
 });
 ```
 
+## Helper functions
+
+### MySQL SET field management
+
+```js
+// Add value to set
+let appendedSet = DbRecord.setFieldSet(oldSet, newValue);
+
+// Remove value from set
+let shortenedSet = DbRecord.setFieldRemove(oldSet, oldValue);
+
+// Check if value is in set
+let exists = DbRecord.setFieldCheck(oldSet, value);
+```
+
+
 ## Other
 
 ### Static access to database handle
