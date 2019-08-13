@@ -117,7 +117,11 @@ class MysqlDatabase {
 	queryAsync(query, values) {
 		return new Promise((resolve, reject) => {
 			this.query(query, values, (err, res) => {
-				resolve(res);
+				if(err) {
+					reject(err);
+				} else {
+					resolve(res);
+				}
 			});
 		});
 	}
@@ -320,6 +324,7 @@ class MysqlDatabase {
 		if(connectionPool) {
 			connectionPool.end((err) => {
 				// console.log("connectionPool destroyed");
+				connectionPool = null;
 			});
 		}
 	}
