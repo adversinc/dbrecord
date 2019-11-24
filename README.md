@@ -308,6 +308,8 @@ not required within the transaction function.
 Since all objects within the transactions should use the
 transacted connection, all _DbRecord_ objects should be local variables.
 
+Also see transactionWithMe().
+
 This code **MAY NOT** work as expected:
 
 ```js
@@ -328,6 +330,26 @@ console.log(obj.name());
 
 The _obj_ is being created outside of transaction and may use the wrong 
 database connection.
+
+### DbRecord.transactionWithMe()
+
+The function allows creating the transaction on object passing
+the current object into transaction callback, and picking up the changes
+back to the original object after the transaction:
+
+```js
+const obj = new SomeObject();
+obj.name("Original name");
+obj.commit();
+
+obj.transactionWithMe((obj) => {
+  // The obj is now the local one, re-created for the transaction
+  obj.name("Changed name");
+});
+
+console.log(obj.name());
+// prints "Changed name"
+```
 
 ### Getting database handle
 
