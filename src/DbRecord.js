@@ -14,6 +14,8 @@ export default class DbRecord {
 	 * reads the data from the database and put them into the internal structures
 	 * (see _init() and _read())
 	 * @param {Object} [options]
+	 * @param {Boolean} [options.forUpdate] - read record with FOR UPDATE flag,
+	 * 	blocking it within the transaction
 	 */
 	constructor(options = {}) {
 		/**
@@ -145,10 +147,10 @@ export default class DbRecord {
 
 		// if "_locateField" is set, then we need to read our data from the database
 		if(options[this._locateField] !== undefined) {
-			this._read(options[this._locateField]);
+			this._read(options[this._locateField], undefined, options);
 		}
 		else if(byKey) {
-			this._readByKey(byKey, keyArgs);
+			this._readByKey(byKey, keyArgs, options);
 		}
 		else {
 			// else create a new record: read the table info and build access methods
@@ -166,10 +168,11 @@ export default class DbRecord {
 	 * @param {*} locateValue - the database unique id of the record
 	 * @param {String} byKey - the field to search on. $_locateField by default.
 	 */
-	_read(locateValue, byKey) {
+	_read(locateValue, byKey = undefined, options = {}) {
 		let field = byKey || this._locateField;
+		const forUpdate = options.forUpdate? "FOR UPDATE": "";
 
-		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${field}=? LIMIT 1`,
+		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${field}=? LIMIT 1 ${forUpdate}`,
 			[locateValue]);
 		return this._createFromRows(rows);
 	}
@@ -181,10 +184,11 @@ export default class DbRecord {
 	 * @param values {Array}
 	 * @private
 	 */
-	_readByKey(keys, values) {
+	_readByKey(keys, values, options = {}) {
 		const fields = keys.join("=? AND ") + "=?";
+		const forUpdate = options.forUpdate? "FOR UPDATE": "";
 
-		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${fields} LIMIT 1`,
+		const rows = this._dbh.querySync(`SELECT * FROM ${this._tableName} WHERE ${fields} LIMIT 1 ${forUpdate}`,
 			values);
 		return this._createFromRows(rows);
 	}

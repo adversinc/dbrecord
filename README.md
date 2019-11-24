@@ -294,6 +294,14 @@ is being rolled back.
 
 Wrap the call to try...catch to catch the exceptions in a callback.
 
+### Object transactional lock
+
+To lock the record for update in transaction, use forUpdate option:
+
+```js
+const locked = new SomeObject({ id, forUpdate: true });
+```
+
 ### Database connection sharing 
 
 Since NodeJS shares the same MySQL connection across all executing code 

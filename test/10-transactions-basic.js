@@ -9,13 +9,14 @@ const
 	lodashMerge = require('lodash/merge'),
 	mlog = require('mocha-logger');
 
+const time = require("./helpers/time");
 
 // Libs to test
 const MysqlDatabase = require("../lib/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 // Tests
-describe('DbRecord transactions', function() {
+describe('DbRecord transactions, single thread', function() {
 	let dbh = null;
 	before(function() {
 		const c = lodashMerge({}, config.get("mysql"));
@@ -79,21 +80,13 @@ describe('DbRecord transactions', function() {
 			return false;
 		});
 
-		assert.ok(TestRecord.tryCreate({ id: objId }) === null, "Object should not exist");
+		assert.ok(TestRecord.tryCreate({id: objId}) === null, "Object should not exist");
 	});
 
 
 	//
 	//
 	it('should intersect on single connection', function() {
-		const sleep = function(ms) {
-			var fiber = Fiber.current;
-			setTimeout(function() {
-				fiber.run();
-			}, ms);
-			Fiber.yield();
-		};
-
 		let rowsFound = null;
 
 		// Start thread 2 which waits 500ms and then checks how many records there are
@@ -101,7 +94,7 @@ describe('DbRecord transactions', function() {
 		// since we share a single connection
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
-				sleep(500);
+				time.sleep(500);
 				mlog.log("thread 2 starting");
 
 				const res = dbh.getRowSync("SELECT COUNT(*) cnt FROM dbrecord_test");
@@ -117,15 +110,81 @@ describe('DbRecord transactions', function() {
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting");
 			dbh.querySync("INSERT INTO dbrecord_test SET name='thread 1'");
-			sleep(1000);
+			time.sleep(1000);
 			mlog.log("thread 1 exiting");
 		});
 
-		sleep(1000);
+		time.sleep(1000);
 		mlog.log("tests completed");
 
 		// Checks
 		assert.equal(rowsFound, 1, "Found trx overlap");
+	});
+});
+
+describe('DbRecord transactions, multi-thread', function() {
+	let dbh = null;
+	before(function() {
+		const c = lodashMerge({}, config.get("mysql"));
+
+		MysqlDatabase.masterConfig(c);
+		dbh = MysqlDatabase.masterDbh();
+	});
+	after(() => {
+		MysqlDatabase.masterDbhDestroy();
+	});
+
+	beforeEach(() => {
+		TestRecord.createMockTable(dbh);
+	});
+
+	//
+	//
+	it('should lock record with forUpdate', function() {
+		let rowsFound = null;
+
+		const obj = new TestRecord();
+		obj.name("Original");
+		obj.commit();
+
+		res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
+		mlog.log("dump: ", res.id, res.name);
+
+		// Start thread 2 which waits 500ms which tries to read object #1
+		let task2Val = "";
+		Future.task(function() {
+			dbh.execTransaction((dbh) => {
+				time.sleep(500);
+				mlog.log("thread 2 starting, dbh:", dbh._db.threadId);
+
+				const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test FOR UPDATE");
+				task2Val = res.name;
+				mlog.log("thread 2 res: ", res.id, res.name);
+
+				mlog.log("thread 2 exiting");
+			});
+		}).detach();
+
+		// Start thread 1 which will insert 1 record immediately and then sleep
+		// for 1000ms
+		dbh.execTransaction((dbh) => {
+			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
+			const obj = new TestRecord({ id: 1, forUpdate: true });
+			mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
+
+			time.sleep(1000);
+			mlog.log("thread 1 updating data");
+			obj.name("Changed");
+			obj.commit();
+
+			mlog.log("thread 1 exiting");
+		});
+
+		time.sleep(1000);
+		mlog.log("tests completed");
+
+		// Checks
+		assert.strictEqual(task2Val, "Changed", "Thread 2 waited for FOR UPDATE");
 	});
 });
 
@@ -135,7 +194,6 @@ describe('DbRecord transactionWithMe', function() {
 	let dbh = null;
 	before(function() {
 		const c = lodashMerge({}, config.get("mysql"));
-		c.reuseConnection = true;
 		c.logger = mlog;
 
 		MysqlDatabase.masterConfig(c);
