@@ -129,3 +129,66 @@ describe('DbRecord transactions', function() {
 	});
 });
 
+
+// Tests
+describe('DbRecord transactionWithMe', function() {
+	let dbh = null;
+	before(function() {
+		const c = lodashMerge({}, config.get("mysql"));
+		c.reuseConnection = true;
+		c.logger = mlog;
+
+		MysqlDatabase.masterConfig(c);
+		dbh = MysqlDatabase.masterDbh();
+	});
+
+	beforeEach(function() {
+		TestRecord.createMockTable(dbh);
+	});
+
+	after(() => {
+		MysqlDatabase.masterDbhDestroy();
+	});
+
+	//
+	//
+	it('should work inside trx', function() {
+		const obj = new TestRecord();
+		obj.name(this.test.fullTitle());
+		obj.commit();
+
+		let originalName = "was not called at all";
+
+		obj.transactionWithMe((obj) => {
+			console.log("In TRX:", obj.name());
+			originalName = obj.name();
+
+			obj.name("Changed to new");
+			obj.commit();
+		});
+
+		assert.equal(originalName, this.test.fullTitle());
+		assert.equal(obj.name(), "Changed to new");
+	});
+
+	it('should rollback trx if required', function() {
+		const obj = new TestRecord();
+		obj.name(this.test.fullTitle());
+		obj.commit();
+
+		let originalName = "was not called at all";
+
+		obj.transactionWithMe((obj) => {
+			console.log("In TRX:", obj.name());
+			originalName = obj.name();
+
+			obj.name("Changed to new");
+			obj.commit();
+
+			return false;
+		});
+
+		assert.equal(originalName, this.test.fullTitle());
+		assert.equal(obj.name(), this.test.fullTitle());
+	});
+});
