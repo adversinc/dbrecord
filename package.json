@@ -37,7 +37,7 @@
     "assert": "^1.4.1",
     "babel-plugin-add-module-exports": "^1.0.2",
     "config": "^1.31.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.0.1",
     "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",
     "mocha-logger": "^1.0.6",
     "promise-mysql": "^3.3.1",
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "continuation-local-storage": "^3.2.1",
-    "fibers": "^4.0.1",
+    "fibers": "3.1.1",
     "lodash": "^4.17.11",
     "mysql": "^2.16.0",
     "quickly-count-substrings": "^1.0.0"
