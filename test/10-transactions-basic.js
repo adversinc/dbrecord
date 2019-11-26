@@ -186,6 +186,55 @@ describe('DbRecord transactions, multi-thread', function() {
 		// Checks
 		assert.strictEqual(task2Val, "Changed", "Thread 2 waited for FOR UPDATE");
 	});
+
+
+	//
+	//
+	it('should lock record with forUpdate in forEach', function() {
+		let rowsFound = null;
+
+		const obj = new TestRecord();
+		obj.name("Original");
+		obj.commit();
+
+		res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
+		mlog.log("dump: ", res.id, res.name);
+
+		// Start thread 2 which waits 500ms which tries to read object #1
+		let task2Val = "";
+		Future.task(function() {
+			dbh.execTransaction((dbh) => {
+				time.sleep(500);
+				mlog.log("thread 2 starting, dbh:", dbh._db.threadId);
+
+				const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test FOR UPDATE");
+				task2Val = res.name;
+				mlog.log("thread 2 res: ", res.id, res.name);
+
+				mlog.log("thread 2 exiting");
+			});
+		}).detach();
+
+		// Start thread 1 which will insert 1 record immediately and then sleep
+		// for 1000ms
+		dbh.execTransaction((dbh) => {
+			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
+			TestRecord.forEach({ forUpdate: true }, (item, options) => {
+				mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
+				time.sleep(1000);
+				item.name("Changed");
+				item.commit();
+			});
+
+			mlog.log("thread 1 exiting");
+		});
+
+		time.sleep(1000);
+		mlog.log("tests completed");
+
+		// Checks
+		assert.strictEqual(task2Val, "Changed", "Thread 2 waited for FOR UPDATE");
+	});
 });
 
 
