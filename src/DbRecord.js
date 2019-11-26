@@ -54,6 +54,25 @@ export default class DbRecord {
 		}
 	}
 
+
+	/** Creates a new database record, populating it from the fields list
+	 * @param {Object} fields
+	 * @param {Object} [options] - options for database creation
+	 * @returns {DbRecord} the newly created object
+	 */
+	static newRecord(fields, options = {}) {
+		const obj = new this();
+
+		Object.keys(fields).forEach((k) => {
+			obj._changes[k] = true;
+			obj._raw[k] = fields[k];
+		});
+
+		obj.commit();
+		return obj;
+	}
+
+
 	/**
 	 * Instructs class to either save changes to db after each field update, or
 	 * accumulate the changes.

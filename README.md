@@ -130,6 +130,19 @@ obj->commit();
 console.log("New object ID", obj->id());
 ```
 
+### Creating using newRecord()
+
+The newRecord() static function allows creating the new record within one call:
+
+```javascript
+const obj = MyObject.newRecord({
+  field1: 1,
+  filed2: "value 2"
+});
+```
+
+newRecord() returns the just created object.
+
 ## Removing records
 
 The record can be removed by calling deleteRecord():

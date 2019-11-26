@@ -45,6 +45,28 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
+	it('should create using newRecord', function() {
+		const obj = TestRecord.newRecord({
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456
+		});
+
+		// Checks
+		const TABLE_NAME  = obj._tableName;
+		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
+		assert.deepEqual(row, [ {
+			id: 1,
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456,
+			managed_field: null,
+			unique_field: null
+		} ]);
+	});
+
+	//
+	//
 	it('should fail on a row duplicate', function() {
 		const obj1 = new TestRecord();
 		obj1.name(this.test.fullTitle());
