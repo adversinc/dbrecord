@@ -790,6 +790,11 @@ babel-plugin-add-module-exports@^1.0.2:
   optionalDependencies:
     chokidar "^2.0.4"
 
+babel-plugin-conditional-compile@^0.0.5:
+  version "0.0.5"
+  resolved "https://npm.metabizlist.com/babel-plugin-conditional-compile/-/babel-plugin-conditional-compile-0.0.5.tgz#66d99537e055261d96de2c9ec4cc66ed2d3c287d"
+  integrity sha1-ZtmVN+BVJh2W3iyexMxm7S08KH0=
+
 babel-plugin-dynamic-import-node@^2.3.0:
   version "2.3.0"
   resolved "https://npm.metabizlist.com/babel-plugin-dynamic-import-node/-/babel-plugin-dynamic-import-node-2.3.0.tgz#f00f507bdaa3c3e3ff6e7e5e98d90a7acab96f7f"

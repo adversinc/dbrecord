@@ -356,6 +356,11 @@ export default class DbRecord {
 		//
 		// Iterate
 		const _dbh = MysqlDatabase.masterDbh();
+
+		if(TARGET === "development") {
+			console.log(`${_dbh._db.threadId}: will be running forEach query`);
+		}
+
 		const rows = _dbh.querySync(sql, qparam);
 		options.TOTAL = rows.length;
 

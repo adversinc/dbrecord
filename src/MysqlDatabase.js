@@ -95,6 +95,10 @@ class MysqlDatabase {
 				throw err;
 			}
 
+			if(TARGET == "development") {
+				console.log(`${this._db.threadId}: mysql connected`);
+			}
+
 			future.return();
 		});
 
@@ -102,6 +106,10 @@ class MysqlDatabase {
 	}
 
 	disconnect() {
+		if(TARGET == "development") {
+			console.log(`${this._db.threadId}: closing mysql threadId`);
+		}
+
 		this._db.end();
 	}
 
@@ -182,7 +190,10 @@ class MysqlDatabase {
 			// In a nested transaction, don't create a new connection
 			trxDb = this;
 		} else {
-			// console.log("Creating transaction connection");
+			if(TARGET === "development") {
+				console.log(`Old ${this._db.threadId} is creating transaction connection`);
+			}
+
 			trxDb = new MysqlDatabase(this._config);
 			trxDb._transacted = this._transacted;
 			trxDb.connectSync();
@@ -215,6 +226,9 @@ class MysqlDatabase {
 
 		// If we created a new connection, destroy it
 		if(trxDb != this) {
+			if(TARGET === "development") {
+				console.log(`${trxDb._db.threadId}: destroying trxDb`);
+			}
 			trxDb.destroy();
 		}
 

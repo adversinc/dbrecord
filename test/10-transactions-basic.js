@@ -267,7 +267,7 @@ describe('DbRecord transactionWithMe', function() {
 		let originalName = "was not called at all";
 
 		obj.transactionWithMe((obj) => {
-			console.log("In TRX:", obj.name());
+			//console.log("In TRX:", obj.name());
 			originalName = obj.name();
 
 			obj.name("Changed to new");
@@ -297,5 +297,27 @@ describe('DbRecord transactionWithMe', function() {
 
 		assert.equal(originalName, this.test.fullTitle());
 		assert.equal(obj.name(), this.test.fullTitle());
+	});
+
+	it('ends and further queries work', function() {
+		const obj = new TestRecord();
+		obj.name(this.test.fullTitle());
+		obj.commit();
+
+		let originalName = "was not called at all";
+
+		obj.transactionWithMe((obj) => {
+			console.log("In TRX:", obj.name());
+			originalName = obj.name();
+
+			obj.name("Changed to new");
+			obj.commit();
+		});
+
+		assert.doesNotThrow(() => {
+			TestRecord.forEach({}, (item, options) => {
+				console.log("item name:", item.name());
+			});
+		}, "forEach works after transactionWithMe");
 	});
 });
