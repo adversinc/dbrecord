@@ -204,7 +204,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		let task2Val = "";
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
-				time.sleep(500);
+				time.sleep(1500);
 				mlog.log("thread 2 starting, dbh:", dbh._db.threadId);
 
 				const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test FOR UPDATE");
@@ -221,8 +221,10 @@ describe('DbRecord transactions, multi-thread', function() {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
 			TestRecord.forEach({ forUpdate: true }, (item, options) => {
 				mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
-				time.sleep(1000);
-				item.name("Changed");
+				time.sleep(2000);
+				mlog.log("thread 1 sleep end");
+				item.name("Changed by 1");
+				mlog.log("thread 1 before commit");
 				item.commit();
 			});
 
@@ -233,7 +235,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		mlog.log("tests completed");
 
 		// Checks
-		assert.strictEqual(task2Val, "Changed", "Thread 2 waited for FOR UPDATE");
+		assert.strictEqual(task2Val, "Changed by 1", "Thread 2 waited for FOR UPDATE");
 	});
 });
 
@@ -299,6 +301,7 @@ describe('DbRecord transactionWithMe', function() {
 		assert.equal(obj.name(), this.test.fullTitle());
 	});
 
+
 	it('ends and further queries work', function() {
 		const obj = new TestRecord();
 		obj.name(this.test.fullTitle());
@@ -307,11 +310,13 @@ describe('DbRecord transactionWithMe', function() {
 		let originalName = "was not called at all";
 
 		obj.transactionWithMe((obj) => {
-			console.log("In TRX:", obj.name());
+			mlog.log(`${obj._dbh._db.threadId}: thread 1 starts, obj name: "${obj.name()}"`);
 			originalName = obj.name();
 
 			obj.name("Changed to new");
 			obj.commit();
+
+			mlog.log(`${obj._dbh._db.threadId}: thread 1 end`);
 		});
 
 		assert.doesNotThrow(() => {

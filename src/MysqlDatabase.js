@@ -1,7 +1,7 @@
+import Fiber from 'fibers';
 import Future from 'fibers/future';
 import lodashMerge from 'lodash/merge';
 import mysql from 'mysql';
-import ContextStorage from 'continuation-local-storage';
 
 /**
  * The MySQL connection wrapper which provides the following features:
@@ -20,12 +20,6 @@ let masterDbh = null;
 // Connection pool
 // If connection pool has been set up, MysqlDatabase will pick connections from it
 let connectionPool = null;
-
-// Local dbh context for transaction. Each transaction generates its own local
-// context with its own "current global" dbh.
-// During the transactions start, the value is populated with a transaction
-// dbh, so all upcoming masterDbh() calls return the dbh actual for this transaction.
-let trxContext = ContextStorage.createNamespace('mysql-dbh');
 
 /**
  * The database processing class.
@@ -204,10 +198,10 @@ class MysqlDatabase {
 			trxDb.querySync("START TRANSACTION  /* from trx */");
 		}
 
-		// console.log("before context");
 		// Execute transaction and create a running context for it
-		trxContext.run(() => {
-			trxContext.set("dbh", trxDb);
+		console.log("T:", JSON.stringify(Fiber.current));
+		Future.task(() => {
+			Fiber.current._dbh = trxDb;
 
 			let res = false;
 			try {
@@ -222,7 +216,7 @@ class MysqlDatabase {
 			} else {
 				trxDb.commit();
 			}
-		});
+		}).wait();
 
 		// If we created a new connection, destroy it
 		if(trxDb != this) {
@@ -296,7 +290,13 @@ class MysqlDatabase {
 	 */
 	static masterDbh() {
 		// First try to get the local scope dbh of the current transaction
-		const trxDbh = trxContext.get("dbh");
+		const trxDbh = Fiber.current? Fiber.current._dbh: null;
+
+		if(TARGET === "development") {
+			console.log(`call for masterDbh(), trxDbh: ${trxDbh}`);
+			console.trace();
+		}
+
 		if(trxDbh) {
 			return trxDbh;
 		}

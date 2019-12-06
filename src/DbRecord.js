@@ -245,6 +245,10 @@ export default class DbRecord {
 	 * @private
 	 */
 	_accessField(field, value) {
+		//if(TARGET === "development") {
+		//	console.log(`_accessField ${field}=${value} _autocommit=${this._autocommit} sql thread ${this._dbh._db.threadId}`);
+		//}
+
 		// To set NULL field: class.field(null)
 		if(value !== undefined) {
 			this._changes[field] = true;
