@@ -42,20 +42,7 @@ class MysqlDatabase extends MysqlDatabase2 {
 	}
 
 	connectSync() {
-		const future = new Future();
-		super.connect()
-			.then(() => {
-				if(TARGET == "development") {
-					console.log(`${this._db.threadId}: mysql connected`);
-				}
-
-				future.return();
-			})
-			.catch((err) => {
-				future.throw(err);
-			});
-
-		return future.wait();
+		return Future.fromPromise(super.connect()).wait();
 	}
 
 	/**
@@ -64,19 +51,9 @@ class MysqlDatabase extends MysqlDatabase2 {
 	 * @param values - values to be passed to query
 	 */
 	querySync(query, values) {
-		const future = new Future();
-
-		// console.log("query", this._transacted?"(TRX)":"", query);
-		this._db.query(query, values, (err, q) => {
-			if(err) {
-				//throw err;
-				future.throw(err);
-			} else {
-				future.return(q);
-			}
-		});
-
-		return future.wait();
+		return Future.fromPromise(
+			this.queryAsync(query, values)
+		).wait();
 	}
 
 	/**
@@ -96,93 +73,37 @@ class MysqlDatabase extends MysqlDatabase2 {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	execTransaction(cb) {
-		// TODO GG: port the nested trasactions code here
+		const wrapper = async(dbh) => {
+			return Future.task(() => {
+				return cb(dbh);
+			}).promise();
+		};
 
-		let trxDb = null;
-
-		if(this._transacted > 0 || this._config.reuseConnection) {
-			// In a nested transaction, don't create a new connection
-			trxDb = this;
-		} else {
-			if(TARGET === "development") {
-				console.log(`Old ${this._db.threadId} is creating transaction connection`);
-			}
-
-			trxDb = new MysqlDatabase(this._config);
-			trxDb._transacted = this._transacted;
-			trxDb.connectSync();
-		}
-
-		// Only execute START TRANSACTION for the first-level trx
-		if(trxDb._transacted++ === 0) {
-			trxDb.querySync("START TRANSACTION  /* from trx */");
-		}
-
-		// console.log("before context");
-		// Execute transaction and create a running context for it
-		trxContext.run(() => {
-			trxContext.set("dbh", trxDb);
-
-			let res = false;
-			try {
-				res = cb(trxDb);
-			} catch(ex) {
-				trxDb.rollback();
-				throw ex;
-			}
-
-			if(res === false) {
-				trxDb.rollback();
-			} else {
-				trxDb.commit();
-			}
-		});
-
-		// If we created a new connection, destroy it
-		if(trxDb != this) {
-			if(TARGET === "development") {
-				console.log(`${trxDb._db.threadId}: destroying trxDb`);
-			}
-			trxDb.destroy();
-		}
-
-		return trxDb;
+		return Future.fromPromise(super.execTransaction(wrapper)).wait();
 	}
 
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	commit() {
-		const future = new Future();
-		super.commit()
-			.then(res => future.return(res))
-			.catch(err => { future.throw(err) });
-		return future.wait();
+		return Future.fromPromise(super.commit()).wait();
 	}
 
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	rollback() {
-		const future = new Future();
-		super.rollback()
-			.then(res => future.return(res))
-			.catch(err => { future.throw(err) });
-		return future.wait();
+		return Future.fromPromise(super.rollback()).wait();
 	}
 
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	static masterDbh() {
-		const future = new Future();
-		super.masterDbh()
-			.then(res => future.return(res))
-			.catch(err => { future.throw(err) });
-		return future.wait();
+		return Future.fromPromise(super.masterDbh()).wait();
 	}
 }
 

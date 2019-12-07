@@ -148,7 +148,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		obj.commit();
 
 		res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
-		mlog.log("dump: ", res.id, res.name);
+		mlog.log(`${obj._dbh._db.threadId}: dump: `, res.id, res.name);
 
 		// Start thread 2 which waits 500ms which tries to read object #1
 		let task2Val = "";
@@ -204,7 +204,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		let task2Val = "";
 		Future.task(function() {
 			dbh.execTransaction((dbh) => {
-				time.sleep(1500);
+				time.sleep(1000);
 				mlog.log("thread 2 starting, dbh:", dbh._db.threadId);
 
 				const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test FOR UPDATE");
@@ -220,7 +220,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
 			TestRecord.forEach({ forUpdate: true }, (item, options) => {
-				mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
+				mlog.log(`${item._dbh._db.threadId}/${TestRecord.masterDbh()._db.threadId}: thread 1 locked record and sleeping:`, obj.id(), obj.name());
 				time.sleep(2000);
 				mlog.log("thread 1 sleep end");
 				item.name("Changed by 1");
@@ -263,20 +263,20 @@ describe('DbRecord transactionWithMe', function() {
 	//
 	it('should work inside trx', function() {
 		const obj = new TestRecord();
-		obj.name(this.test.fullTitle());
+		obj.name("Original name");
 		obj.commit();
 
 		let originalName = "was not called at all";
 
 		obj.transactionWithMe((obj) => {
-			//console.log("In TRX:", obj.name());
+			//console.log("In TRX:", obj);
 			originalName = obj.name();
 
 			obj.name("Changed to new");
 			obj.commit();
 		});
 
-		assert.equal(originalName, this.test.fullTitle());
+		assert.equal(originalName, "Original name");
 		assert.equal(obj.name(), "Changed to new");
 	});
 

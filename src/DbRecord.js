@@ -8,12 +8,7 @@ import MysqlDatabase from "./MysqlDatabase";
 **/
 export default class DbRecord extends DbRecord2 {
 	/**
-	 * Creates the class instance. If options.${_locatefield()} parameter is specified,
-	 * reads the data from the database and put them into the internal structures
-	 * (see _init() and _read())
-	 * @param {Object} [options]
-	 * @param {Boolean} [options.forUpdate] - read record with FOR UPDATE flag,
-	 * 	blocking it within the transaction
+	 * @inheritdoc
 	 */
 	constructor(options = {}) {
 		super(options);
@@ -29,6 +24,9 @@ export default class DbRecord extends DbRecord2 {
 		// Empty here, DbRecord does not need init
 	}
 
+	static _getDbhClass() {
+		return MysqlDatabase;
+	}
 
 	/**
 	 * Tries creating an object by locate field/keys. Unlike constructor, does
@@ -99,8 +97,10 @@ export default class DbRecord extends DbRecord2 {
 			.catch(err => { future.throw(err) });
 		return future.wait();
 	}
+
+
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	static forEach(options, cb) {
 		const where = [];
@@ -146,7 +146,6 @@ export default class DbRecord extends DbRecord2 {
 		return MysqlDatabase;
 	}
 
-
 	// Helper functions
 
 	/**
@@ -184,19 +183,31 @@ export default class DbRecord extends DbRecord2 {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @inheritdoc
 	 */
 	transactionWithMe(cb) {
-		const future = new Future();
-		super.transactionWithMe(cb)
-			.then(res => future.return(res))
-			.catch(err => { future.throw(err) });
-		return future.wait();
+		const Class = this.constructor;
+
+		// Make sure we are committed
+		if(Object.keys(this._changes).length > 0) {
+			throw new Error(`${Class.name}: Object has uncommitted changes before transaction`);
+		}
+
+		const dbh = Class.masterDbh();
+		dbh.execTransaction(() => {
+			const params = {};
+			params[this._locateField] = this[this._locateField]();
+			const me = new this.constructor(params);
+
+			return cb(me);
+		});
+
+		// Re-read our object after the transaction
+		Future.fromPromise(
+			this._read(this[this._locateField]())
+		).wait();
 	}
 
-	static _getDbhClass() {
-		return MysqlDatabase;
-	}
 }
 
 
