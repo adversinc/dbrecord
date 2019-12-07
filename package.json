@@ -4,7 +4,8 @@
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "scripts": {
-    "build": "babel -d lib/ src/",
+    "build-devel": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-devel",
+    "build": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-devel",
     "prepare": "npm run build",
     "test": "npm run build && mocha --ui mocha-fibers",
     "publish": "yarn run build"
@@ -36,6 +37,7 @@
     "@babel/preset-env": "^7.3.1",
     "assert": "^1.4.1",
     "babel-plugin-add-module-exports": "^1.0.2",
+    "babel-plugin-conditional-compile": "^0.0.5",
     "config": "^1.31.0",
     "mocha": "^6.0.1",
     "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",
@@ -44,6 +46,8 @@
     "source-map-support": "^0.5.10"
   },
   "dependencies": {
+    "advers-dbrecord2": "^2.7.0",
+    "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
     "fibers": "3.1.1",
     "lodash": "^4.17.11",

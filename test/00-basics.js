@@ -14,6 +14,7 @@ describe('DbRecord basic ops', function() {
 		MysqlDatabase.masterConfig(config.get("mysql"));
 
 		dbh = MysqlDatabase.masterDbh();
+		console.log("dbh class:", dbh.constructor.name);
 	});
 	after(() => {
 		MysqlDatabase.masterDbhDestroy();
