@@ -20,7 +20,7 @@ Future.task(() => {
 
 	let sql = "INSERT INTO dbrecord_test(name,unique_field) VALUES";
 	const values = [];
-	for(let i=0; i<1000; i++) {
+	for(let i=0; i<100; i++) {
 		values.push(`("${i}", ${i})`);
 	}
 	dbh.querySync(sql + values.join(","));
