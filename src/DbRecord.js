@@ -112,7 +112,7 @@ export default class DbRecord extends DbRecord2 {
 		const _dbh =  this._getDbhClassStatic().masterDbh();
 
 		if(TARGET === "development") {
-			console.log(`${_dbh._db.threadId}: will be running forEach query`);
+			//console.log(`${_dbh._db.threadId}: will be running forEach query`);
 		}
 
 		const rows = _dbh.querySync(sql, qparam);

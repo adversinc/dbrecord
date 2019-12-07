@@ -1,0 +1,11 @@
+{
+	"mysql": {
+		"host": "127.0.0.1",
+		"user": "tests",
+		"password": "tests",
+		"database": "tests",
+
+		"connectionLimit": 2
+	}
+}
+
