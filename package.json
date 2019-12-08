@@ -5,7 +5,7 @@
   "main": "lib/DbRecord.js",
   "scripts": {
     "build-devel": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-devel",
-    "build": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-devel",
+    "build": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-prod",
     "prepare": "npm run build",
     "test": "npm run build && mocha --ui mocha-fibers",
     "publish": "yarn run build"
