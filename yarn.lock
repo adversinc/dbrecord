@@ -688,10 +688,10 @@ abbrev@1:
   resolved "https://npm.metabizlist.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
-advers-dbrecord2@^2.7.0:
-  version "2.7.0"
-  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-2.7.0.tgz#f0c26f92184c9c9fec2b422e5b9f27b07e17677c"
-  integrity sha512-HFJwz5LUF/viAE8oAYXtrgabeOhoXPz1xAE0lGZwI4ZaXH2UVtWlCa3q/DJcBywKzKtpvL0VfKL/YIPmBgd7wQ==
+advers-dbrecord2@^2.8.0:
+  version "2.8.0"
+  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-2.8.0.tgz#b220765647ce3103cc80124e4c0ce0b6326dbf39"
+  integrity sha512-M11S3h/GToI/YXoeg9Fgo/EcpQMfnw6Vo8cieE218eBiX43Sd3/H3nNkLGf+w+8j9cMnJiFagrDY6s8thHzZPA==
   dependencies:
     cls-hooked "^4.2.2"
     continuation-local-storage "^3.2.1"

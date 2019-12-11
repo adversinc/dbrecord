@@ -1,3 +1,4 @@
+import Fiber from 'fibers';
 import Future from 'fibers/future';
 
 import DbRecord2 from "advers-dbrecord2";
@@ -49,15 +50,11 @@ export default class DbRecord extends DbRecord2 {
 	 * @returns {DbRecord} the newly created object
 	 */
 	static newRecord(fields, options = {}) {
-		const obj = new this();
-
-		Object.keys(fields).forEach((k) => {
-			obj._changes[k] = true;
-			obj._raw[k] = fields[k];
-		});
-
-		obj.commit();
-		return obj;
+		const future = new Future();
+		super.newRecord(fields, options)
+			.then(res => future.return(res))
+			.catch(err => { future.throw(err) });
+		return future.wait();
 	}
 
 
@@ -77,7 +74,12 @@ export default class DbRecord extends DbRecord2 {
 	/**
 	 * Save accumulated changed fields, if any
 	 */
-	commit() {
+	commit(options = {}) {
+		// If called without a fiber, fall to super
+		if(Fiber.current === undefined) {
+			return super.commit(options);
+		}
+
 		const future = new Future();
 		super.commit()
 			.then(res => future.return(res))

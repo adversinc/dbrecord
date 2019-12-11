@@ -65,6 +65,28 @@ describe('DbRecord basic ops', function() {
 			unique_field: null
 		} ]);
 	});
+	//
+	//
+	it('should create using newRecord with id', function() {
+		const obj = TestRecord.newRecord({
+			id: 999,
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456
+		});
+
+		// Checks
+		const TABLE_NAME  = obj._tableName;
+		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
+		assert.deepEqual(row, [ {
+			id: 999,
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456,
+			managed_field: null,
+			unique_field: null
+		} ]);
+	});
 
 	//
 	//

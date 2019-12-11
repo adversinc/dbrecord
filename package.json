@@ -48,7 +48,7 @@
     "source-map-support": "^0.5.10"
   },
   "dependencies": {
-    "advers-dbrecord2": "^2.7.0",
+    "advers-dbrecord2": "^2.8.0",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
     "fibers": "3.1.1",
