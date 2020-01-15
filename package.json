@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "scripts": {
@@ -32,9 +32,9 @@
   },
   "homepage": "https://github.com/adversinc/dbrecord#readme",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.3",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
     "assert": "^1.4.1",
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-conditional-compile": "^0.0.5",
@@ -51,7 +51,7 @@
     "advers-dbrecord2": "^2.8.0",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
-    "fibers": "3.1.1",
+    "fibers": "^4.0.2",
     "lodash": "^4.17.11",
     "mysql": "^2.16.0",
     "quickly-count-substrings": "^1.0.0"
