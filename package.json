@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
   "types": "./lib/DbRecord.d.ts",
@@ -33,29 +33,29 @@
   },
   "homepage": "https://github.com/adversinc/dbrecord#readme",
   "devDependencies": {
-    "@babel/cli": "^7.8.3",
-    "@babel/core": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
-    "assert": "^1.4.1",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "assert": "^2.0.0",
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-conditional-compile": "^0.0.5",
     "benchmark": "^2.1.4",
-    "config": "^1.31.0",
+    "config": "^3.2.5",
     "microtime": "^3.0.0",
-    "mocha": "^6.0.1",
+    "mocha": "^7.0.1",
     "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",
     "mocha-logger": "^1.0.6",
-    "promise-mysql": "^3.3.1",
-    "source-map-support": "^0.5.10",
+    "promise-mysql": "^4.1.2",
+    "source-map-support": "^0.5.16",
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "advers-dbrecord2": "^3.0.0",
+    "advers-dbrecord2": "^3.0.2",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
     "fibers": "^4.0.2",
-    "lodash": "^4.17.11",
-    "mysql": "^2.16.0",
+    "lodash": "^4.17.15",
+    "mysql": "^2.18.1",
     "quickly-count-substrings": "^1.0.0"
   }
 }
