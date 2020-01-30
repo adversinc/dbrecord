@@ -1,5 +1,4 @@
 import Future from 'fibers/future';
-
 import MysqlDatabase2 from "advers-dbrecord2/lib/MysqlDatabase2";
 
 /**
@@ -37,7 +36,7 @@ class MysqlDatabase extends MysqlDatabase2 {
 	 * 	debugSQL - log all SQL queries (debug)
 	 * @param config
 	 */
-	constructor(config) {
+	constructor(config: MysqlDatabase2.DbConfig) {
 		super(config);
 	}
 
@@ -50,7 +49,7 @@ class MysqlDatabase extends MysqlDatabase2 {
 	 * @param query - query to run
 	 * @param values - values to be passed to query
 	 */
-	querySync(query, values) {
+	querySync(query: string, values?: MysqlDatabase2.FieldValue[]) {
 		return Future.fromPromise(
 			this.queryAsync(query, values)
 		).wait();
@@ -63,7 +62,7 @@ class MysqlDatabase extends MysqlDatabase2 {
 	 * @param values
 	 * @returns {Object} - the object with selected fields or {} of no rows found
 	 */
-	getRowSync(query, values) {
+	getRowSync(query: string, values?: MysqlDatabase2.FieldValue[]) {
 		const rows = this.querySync(query, values);
 		// It is questionable: should we return {} or null below? Which is easier to use?
 		// {} seems to be safer to use, no null.field error will fire
@@ -76,7 +75,7 @@ class MysqlDatabase extends MysqlDatabase2 {
 	 * @inheritdoc
 	 */
 	execTransaction(cb) {
-		const wrapper = async(dbh) => {
+		const wrapper = async(dbh: MysqlDatabase) => {
 			return Future.task(() => {
 				return cb(dbh);
 			}).promise();
@@ -107,6 +106,9 @@ class MysqlDatabase extends MysqlDatabase2 {
 	}
 }
 
+namespace MysqlDatabase {
+	interface DbConfig extends MysqlDatabase2.DbConfig {}
+}
 
-export default MysqlDatabase;
+export = MysqlDatabase;
 

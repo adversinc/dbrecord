@@ -1,11 +1,12 @@
 {
   "name": "advers-dbrecord",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "The MySQL active record base class",
   "main": "lib/DbRecord.js",
+  "types": "./lib/DbRecord.d.ts",
   "scripts": {
-    "build-devel": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-devel",
-    "build": "babel -d lib/ src/ --presets=./babel/babel-preset-conditional-prod",
+    "build-devel2": "babel -d lib/ src/  --presets=./babel/babel-preset-conditional-devel",
+    "build": "tsc --project tsconfig.json",
     "prepare": "npm run build",
     "test": "npm run build && mocha --ui mocha-fibers",
     "publish": "yarn run build"
@@ -45,10 +46,11 @@
     "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",
     "mocha-logger": "^1.0.6",
     "promise-mysql": "^3.3.1",
-    "source-map-support": "^0.5.10"
+    "source-map-support": "^0.5.10",
+    "typescript": "^3.7.5"
   },
   "dependencies": {
-    "advers-dbrecord2": "^2.8.0",
+    "advers-dbrecord2": "^3.0.0",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
     "fibers": "^4.0.2",
