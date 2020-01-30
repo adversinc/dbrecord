@@ -4,10 +4,12 @@ import Future from 'fibers/future';
 import DbRecord2 from "advers-dbrecord2";
 import MysqlDatabase from "./MysqlDatabase";
 
+type TransactionCallback = (me: DbRecord) => Promise<boolean>;
+
 /**
  * Represents the database record class.
 **/
-export default class DbRecord extends DbRecord2 {
+class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
@@ -21,7 +23,7 @@ export default class DbRecord extends DbRecord2 {
 		return future.wait();
 	}
 
-	init() {
+	init(): any {
 		// Empty here, DbRecord does not need init
 	}
 
@@ -34,7 +36,7 @@ export default class DbRecord extends DbRecord2 {
 	 * not throw an error for non-existing record and returns null instead.
 	 * @param options
 	 */
-	static tryCreate(options = {}) {
+	static tryCreate(options: DbRecord2.DbRecordOptions = {}): any {
 		try {
 			return new this(options);
 		} catch(ex) {
@@ -55,20 +57,6 @@ export default class DbRecord extends DbRecord2 {
 			.then(res => future.return(res))
 			.catch(err => { future.throw(err) });
 		return future.wait();
-	}
-
-
-	/**
-	 * Instructs class to either save changes to db after each field update, or
-	 * accumulate the changes.
-	 * @param {boolean} auto
-	 */
-	autocommit(auto) {
-		if(auto && !this._autocommit) {
-			// If there are potential unsaved changes, save them
-			this.commit();
-		}
-		this._autocommit = auto;
 	}
 
 	/**
@@ -113,9 +101,11 @@ export default class DbRecord extends DbRecord2 {
 		// Iterate
 		const _dbh =  this._getDbhClassStatic().masterDbh();
 
+		/*
 		if(TARGET === "development") {
 			console.log(`${_dbh._db.threadId}: will be running forEach query`);
 		}
+		*/
 
 		const rows = _dbh.querySync(sql, qparam);
 		options.TOTAL = rows.length;
@@ -187,7 +177,7 @@ export default class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	transactionWithMe(cb) {
+	transactionWithMe(cb: TransactionCallback): any {
 		const Class = this.constructor;
 
 		// Make sure we are committed
@@ -195,11 +185,11 @@ export default class DbRecord extends DbRecord2 {
 			throw new Error(`${Class.name}: Object has uncommitted changes before transaction`);
 		}
 
-		const dbh = Class.masterDbh();
+		const dbh = (Class as any).masterDbh();
 		dbh.execTransaction(() => {
 			const params = {};
 			params[this._locateField] = this[this._locateField]();
-			const me = new this.constructor(params);
+			const me = new (this.constructor as any)(params);
 
 			return cb(me);
 		});
@@ -212,14 +202,4 @@ export default class DbRecord extends DbRecord2 {
 
 }
 
-
-/**
- * The sorting function to get entries with more commas first
- * @param a
- * @param b
- */
-function commaSort(a,b) {
-	const ca = strcount(a, ",");
-	const cb = strcount(b, ",");
-	return ca>cb? -1 : 1;
-}
+export = DbRecord;
