@@ -16,7 +16,9 @@ declare class DbRecord extends DbRecord2 {
      * not throw an error for non-existing record and returns null instead.
      * @param options
      */
-    static tryCreate(options?: DbRecord2.DbRecordOptions): any;
+    static tryCreate<T extends DbRecord>(this: {
+        new ({}: {}): T;
+    }, options?: DbRecord2.ObjectInitializer): T;
     /** Creates a new database record, populating it from the fields list
      * @param {Object} fields
      * @param {Object} [options] - options for database creation
@@ -60,9 +62,13 @@ declare class DbRecord extends DbRecord2 {
      * @inheritdoc
      */
     transactionWithMe(cb: TransactionCallback): any;
+    /**
+     * Returns the current database handle
+     */
+    static masterDbh(): MysqlDatabase;
 }
 declare namespace DbRecord {
-    export import DbRecordOptions = DbRecord2.DbRecordOptions;
+    export import ObjectInitializer = DbRecord2.ObjectInitializer;
     export import ForEachOptions = DbRecord2.ForEachOptions;
     export import Column = DbRecord2.Column;
 }

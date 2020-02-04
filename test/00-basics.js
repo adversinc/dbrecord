@@ -24,6 +24,14 @@ describe('DbRecord basic ops', function() {
 		TestRecord.createMockTable(dbh);
 	});
 
+
+	it("should return correct master dbh", function() {
+		const dbh2 = TestRecord.masterDbh();
+
+		assert.ok(dbh2.cid, "Database handle exists");
+		assert.equal(dbh2.cid, dbh.cid, "Database handle is correct");
+	});
+
 	//
 	//
 	it('should create a row', function() {
