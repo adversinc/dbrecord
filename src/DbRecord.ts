@@ -199,7 +199,13 @@ class DbRecord extends DbRecord2 {
 			this._read(this[this._locateField]())
 		).wait();
 	}
+}
 
+namespace DbRecord {
+	export import DbRecordOptions = DbRecord2.DbRecordOptions;
+	export import ForEachOptions = DbRecord2.ForEachOptions;
+
+	export import Column = DbRecord2.Column;
 }
 
 export = DbRecord;

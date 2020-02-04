@@ -61,4 +61,9 @@ declare class DbRecord extends DbRecord2 {
      */
     transactionWithMe(cb: TransactionCallback): any;
 }
+declare namespace DbRecord {
+    export import DbRecordOptions = DbRecord2.DbRecordOptions;
+    export import ForEachOptions = DbRecord2.ForEachOptions;
+    export import Column = DbRecord2.Column;
+}
 export = DbRecord;
