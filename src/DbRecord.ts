@@ -4,12 +4,12 @@ import Future from 'fibers/future';
 import DbRecord2 from "advers-dbrecord2";
 import MysqlDatabase from "./MysqlDatabase";
 
-type TransactionCallback = (me: DbRecord) => Promise<boolean>;
+type TransactionCallback<T> = (me: DbRecord<T>) => Promise<boolean>;
 
 /**
  * Represents the database record class.
 **/
-class DbRecord extends DbRecord2 {
+class DbRecord<T> extends DbRecord2<T> {
 	/**
 	 * @inheritdoc
 	 */
@@ -36,7 +36,7 @@ class DbRecord extends DbRecord2 {
 	 * not throw an error for non-existing record and returns null instead.
 	 * @param options
 	 */
-	static tryCreate(options: DbRecord2.DbRecordOptions = {}): any {
+	static tryCreate<T>(options: DbRecord2.ObjectInitializer<T> = {}): any {
 		try {
 			return new this(options);
 		} catch(ex) {
@@ -177,7 +177,7 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	transactionWithMe(cb: TransactionCallback): any {
+	transactionWithMe(cb: TransactionCallback<T>): any {
 		const Class = this.constructor;
 
 		// Make sure we are committed
@@ -202,7 +202,7 @@ class DbRecord extends DbRecord2 {
 }
 
 namespace DbRecord {
-	export import DbRecordOptions = DbRecord2.DbRecordOptions;
+	export import ObjectInitializer = DbRecord2.ObjectInitializer;
 	export import ForEachOptions = DbRecord2.ForEachOptions;
 
 	export import Column = DbRecord2.Column;
