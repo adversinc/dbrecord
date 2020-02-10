@@ -1,6 +1,6 @@
 import DbRecord2 from "advers-dbrecord2";
 import MysqlDatabase from "./MysqlDatabase";
-declare type TransactionCallback = (me: DbRecord) => Promise<boolean>;
+declare type TransactionCallback<T extends DbRecord2> = (me: T) => boolean | void;
 /**
  * Represents the database record class.
 **/
@@ -10,23 +10,24 @@ declare class DbRecord extends DbRecord2 {
     /**
      * @inheritdoc
      */
-    constructor(options?: {});
+    constructor(values?: DbRecord2.ObjectInitializer, initOptions?: DbRecord2.InitializerOptions);
     init(): any;
     static _getDbhClass(): typeof MysqlDatabase;
     /**
      * Tries creating an object by locate field/keys. Unlike constructor, does
      * not throw an error for non-existing record and returns null instead.
+     * @param values
      * @param options
      */
     static tryCreate<T extends DbRecord>(this: {
-        new ({}: {}): T;
-    }, options?: DbRecord2.ObjectInitializer): T;
+        new ({}: {}, {}: {}): T;
+    }, values?: DbRecord2.ObjectInitializer, options?: DbRecord2.InitializerOptions): T;
     /** Creates a new database record, populating it from the fields list
      * @param {Object} fields
      * @param {Object} [options] - options for database creation
      * @returns {DbRecord} the newly created object
      */
-    static newRecord(fields: any, options?: {}): any;
+    static newRecord(fields: any): any;
     /**
      * Save accumulated changed fields, if any
      */
@@ -63,7 +64,7 @@ declare class DbRecord extends DbRecord2 {
     /**
      * @inheritdoc
      */
-    transactionWithMe(cb: TransactionCallback): any;
+    transactionWithMe<T extends DbRecord2>(this: T, cb: TransactionCallback<T>): any;
     /**
      * Returns the current database handle
      */

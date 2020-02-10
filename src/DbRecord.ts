@@ -4,7 +4,7 @@ import Future from 'fibers/future';
 import DbRecord2 from "advers-dbrecord2";
 import MysqlDatabase from "./MysqlDatabase";
 
-type TransactionCallback = (me: DbRecord) => Promise<boolean>;
+type TransactionCallback<T extends DbRecord2> = (me: T) => boolean|void;
 
 /**
  * Represents the database record class.
@@ -17,8 +17,9 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	constructor(options = {}) {
-		super(options);
+	constructor(values: DbRecord2.ObjectInitializer = {},
+							initOptions: DbRecord2.InitializerOptions = {}) {
+		super(values, initOptions);
 
 		const future = new Future();
 		super.init()
@@ -38,11 +39,14 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * Tries creating an object by locate field/keys. Unlike constructor, does
 	 * not throw an error for non-existing record and returns null instead.
+	 * @param values
 	 * @param options
 	 */
-	static tryCreate<T extends DbRecord>(this: { new({}): T }, options: DbRecord2.ObjectInitializer = {}): T {
+	static tryCreate<T extends DbRecord>(this: { new({},{}): T },
+		 values: DbRecord2.ObjectInitializer = {},
+		 options: DbRecord2.InitializerOptions = {}): T {
 		try {
-			return new this(options);
+			return new this(values, options);
 		} catch(ex) {
 			if(ex.message == "E_DB_NO_OBJECT") { return null; }
 			else { throw ex; }
@@ -55,9 +59,9 @@ class DbRecord extends DbRecord2 {
 	 * @param {Object} [options] - options for database creation
 	 * @returns {DbRecord} the newly created object
 	 */
-	static newRecord(fields, options = {}) {
+	static newRecord(fields) {
 		const future = new Future();
-		super.newRecord(fields, options)
+		super.newRecord(fields)
 			.then(res => future.return(res))
 			.catch(err => { future.throw(err) });
 		return future.wait();
@@ -181,7 +185,7 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	transactionWithMe(cb: TransactionCallback): any {
+	transactionWithMe<T extends DbRecord2>(this: T, cb: TransactionCallback<T>): any {
 		const Class = this.constructor;
 
 		// Make sure we are committed
