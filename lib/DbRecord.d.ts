@@ -5,6 +5,8 @@ declare type TransactionCallback = (me: DbRecord) => Promise<boolean>;
  * Represents the database record class.
 **/
 declare class DbRecord extends DbRecord2 {
+    /** Direct access to the database handle **/
+    _dbh: MysqlDatabase;
     /**
      * @inheritdoc
      */

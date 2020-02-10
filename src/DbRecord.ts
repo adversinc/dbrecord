@@ -11,6 +11,9 @@ type TransactionCallback = (me: DbRecord) => Promise<boolean>;
 **/
 // @ts-ignorea
 class DbRecord extends DbRecord2 {
+	/** Direct access to the database handle **/
+	_dbh: MysqlDatabase;
+
 	/**
 	 * @inheritdoc
 	 */
