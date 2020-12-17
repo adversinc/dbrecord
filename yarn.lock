@@ -771,10 +771,10 @@
   resolved "https://npm.metabizlist.com/@types%2fnode/-/node-13.1.7.tgz#db51d28b8dfacfe4fb2d0da88f5eb0a2eca00675"
   integrity sha512-HU0q9GXazqiKwviVxg9SI/+t/nAsGkvLDkIdxz+ObejG2nX6Si00TeLqHMoS+a/1tjH7a8YpKVQwtgHuMQsldg==
 
-advers-dbrecord2@^3.1.6:
-  version "3.1.6"
-  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-3.1.6.tgz#d849dedcd57ab3ee1353ff44c247f02d08ce6974"
-  integrity sha512-NsS9EDgxuhn1dPTIKyXw62eJXC+tSu66+mjSbJTev9LNvaRxVF6beQAZdbhN5RWJLb3aXQU2Vv5CZseC0rlcww==
+advers-dbrecord2@^3.1.9:
+  version "3.1.10"
+  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-3.1.10.tgz#cd1313b21103d36fe97e38b4a49119ed6b4b2601"
+  integrity sha512-5zJiydTYSPReN08AfiW57rw1sKC9unkRVt8zcyvVQ4w3tLXO0OczQkTpCyY9gvJfQ7eTkucgnVwNg/khchGhHw==
   dependencies:
     cls-hooked "^4.2.2"
     continuation-local-storage "^3.2.1"

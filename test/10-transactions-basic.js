@@ -169,7 +169,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
-			const obj = new TestRecord({ id: 1, forUpdate: true });
+			const obj = new TestRecord({ id: 1}, { forUpdate: true });
 			mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
 
 			time.sleep(1000);
