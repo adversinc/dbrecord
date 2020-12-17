@@ -40,7 +40,9 @@ declare class DbRecord extends DbRecord2 {
     /**
      * @inheritdoc
      */
-    static forEach(options: any, cb: any): any;
+    static forEach<T extends DbRecord>(this: {
+        new (): T;
+    }, options: DbRecord2.ForEachOptions, cb: DbRecord2.ForeachCallback<T>): number;
     static _getDbhClassStatic(): typeof MysqlDatabase;
     _getDbhClass(): typeof MysqlDatabase;
     /**

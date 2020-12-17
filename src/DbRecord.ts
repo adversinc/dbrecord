@@ -100,14 +100,14 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	static forEach(options, cb) {
+	static forEach<T extends DbRecord>(this: { new(): T }, options: DbRecord2.ForEachOptions, cb: DbRecord2.ForeachCallback<T>) {
 		const where = [];
 		const qparam = [];
-		const sql = this._prepareForEach(options, where, qparam);
+		const sql = (this as unknown as typeof DbRecord)._prepareForEach(options, where, qparam);
 
 		//
 		// Iterate
-		const _dbh =  this._getDbhClassStatic().masterDbh();
+		const _dbh =  (this as unknown as typeof DbRecord)._getDbhClassStatic().masterDbh();
 
 		/*
 		if(TARGET === "development") {
@@ -125,10 +125,11 @@ class DbRecord extends DbRecord2 {
 				options.COUNTER++;
 
 				const o = {};
-				o[this._locatefield()] = row[this._locatefield()];
-				const obj = new this(o);
+				o[(this as unknown as typeof DbRecord)._locatefield()] = row[(this as unknown as typeof DbRecord)._locatefield()];
+				const obj = new (this as unknown as typeof DbRecord)(o);
 
 				// Wait for iterator to end
+				// @ts-ignore
 				cb(obj, options);
 			}
 		} else {
@@ -224,3 +225,4 @@ namespace DbRecord {
 }
 
 export = DbRecord;
+
