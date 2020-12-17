@@ -42,7 +42,7 @@ declare class DbRecord extends DbRecord2 {
      */
     static forEach<T extends DbRecord>(this: {
         new (): T;
-    }, options: DbRecord2.ForEachOptions, cb: DbRecord2.ForeachCallback<T>): number;
+    }, options: DbRecord2.ForEachOptions, cb: DbRecord.ForeachCallback<T>): number;
     static _getDbhClassStatic(): typeof MysqlDatabase;
     _getDbhClass(): typeof MysqlDatabase;
     /**
@@ -76,5 +76,6 @@ declare namespace DbRecord {
     export import ObjectInitializer = DbRecord2.ObjectInitializer;
     export import ForEachOptions = DbRecord2.ForEachOptions;
     export import Column = DbRecord2.Column;
+    type ForeachCallback<T> = (item: T, options: DbRecord2.ForEachOptions) => boolean | void;
 }
 export = DbRecord;

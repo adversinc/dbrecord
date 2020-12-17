@@ -2,7 +2,7 @@ import DbRecord = require("../src/DbRecord");
 
 class TestRecord extends DbRecord {
 	static _table() {
-		return "tests." + TABLE_NAME;
+		return "tests.table";
 	}
 
 	static _locatefield() {
@@ -19,6 +19,6 @@ class TestRecord extends DbRecord {
 // The 'item' type should resolve to "TestRecord" with TS
 TestRecord.forEach({
 
-}, async (item) => {
+}, (item) => {
 	item.myLocal();
 })

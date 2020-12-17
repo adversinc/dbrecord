@@ -100,7 +100,7 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * @inheritdoc
 	 */
-	static forEach<T extends DbRecord>(this: { new(): T }, options: DbRecord2.ForEachOptions, cb: DbRecord2.ForeachCallback<T>) {
+	static forEach<T extends DbRecord>(this: { new(): T }, options: DbRecord2.ForEachOptions, cb: DbRecord.ForeachCallback<T>): number {
 		const where = [];
 		const qparam = [];
 		const sql = (this as unknown as typeof DbRecord)._prepareForEach(options, where, qparam);
@@ -130,7 +130,8 @@ class DbRecord extends DbRecord2 {
 
 				// Wait for iterator to end
 				// @ts-ignore
-				cb(obj, options);
+				const res = cb(obj, options);
+				if(res === false) { break; }
 			}
 		} else {
 			options.COUNTER = options.TOTAL;
@@ -222,6 +223,8 @@ namespace DbRecord {
 	export import ForEachOptions = DbRecord2.ForEachOptions;
 
 	export import Column = DbRecord2.Column;
+
+	export type ForeachCallback<T> = (item: T, options: DbRecord2.ForEachOptions) => boolean|void;
 }
 
 export = DbRecord;
