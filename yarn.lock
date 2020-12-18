@@ -772,9 +772,9 @@
   integrity sha512-HU0q9GXazqiKwviVxg9SI/+t/nAsGkvLDkIdxz+ObejG2nX6Si00TeLqHMoS+a/1tjH7a8YpKVQwtgHuMQsldg==
 
 advers-dbrecord2@^3.1.9:
-  version "3.2.1"
-  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-3.2.1.tgz#16d14fe1c71f611f8996184bd4bec14223f91bc1"
-  integrity sha512-jt7SkSaGXihOHYu2MKOqD1IwaU1uJbCqMWMARKjZAJIq+2Z421gn5eG0FXm6uQBzCrFtwVf25TIK8YgArJvaxA==
+  version "3.3.0"
+  resolved "https://npm.metabizlist.com/advers-dbrecord2/-/advers-dbrecord2-3.3.0.tgz#7a40fbb143f9159847a2e99dfe766b0bd7444b38"
+  integrity sha512-M+4sJeS6OBcD4e9XtsyRnvIRvIkBB2bDC8thUA0rhVnp+a/29119V/blOdh9FwiILmCddMtahNgTiUao3oeydQ==
   dependencies:
     cls-hooked "^4.2.2"
     continuation-local-storage "^3.2.1"
