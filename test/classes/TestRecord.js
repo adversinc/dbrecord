@@ -13,8 +13,8 @@ class TestRecord extends DbRecord {
 	 * Creates record instance
 	 * TODO: Is this really required for overridden class?
 	 */
-	constructor(options = {}) {
-		super(options);
+	constructor(values = {}, initOptions = {}) {
+		super(values, initOptions);
 
 		this._managedCalled = false;
 	}

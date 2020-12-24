@@ -325,4 +325,34 @@ describe('DbRecord transactionWithMe', function() {
 			});
 		}, "forEach works after transactionWithMe");
 	});
+
+
+	it('works if code in transaction crashes', function() {
+		const obj = new TestRecord();
+		obj.name("Original");
+		obj.commit();
+
+		let originalName = "was not called at all";
+
+		let error = "";
+
+		try {
+			obj.transactionWithMe((obj) => {
+				mlog.log(`${obj._dbh._db.threadId}: thread 1 starts, obj name: "${obj.name()}"`);
+				originalName = obj.name();
+
+				obj.name("Changed to new");
+				obj.commit();
+
+				unexistantFunc();
+			});
+		} catch(ex) {
+			error = ex.message;
+		}
+
+		const obj2 = new TestRecord({ id: obj.id() });
+
+		assert.equal(error, "unexistantFunc is not defined", "Error popped from transaction");
+		assert.equal(obj2.name(), "Original", "Transaction changes rolled back");
+	});
 });
