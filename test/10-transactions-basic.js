@@ -280,6 +280,26 @@ describe('DbRecord transactionWithMe', function() {
 		assert.equal(obj.name(), "Changed to new");
 	});
 
+	//
+	//
+	it('should have the previous cid after trx', function() {
+		const obj = new TestRecord();
+		obj.name("Original name");
+		obj.commit();
+
+		const cid1 = obj._dbh.cid;
+		obj.transactionWithMe((obj) => {
+			//console.log("In TRX:", obj);
+			originalName = obj.name();
+
+			obj.name("Changed to new");
+			obj.commit();
+		});
+		const cid2 = obj._dbh.cid;
+
+		assert.equal(cid1, cid2, "cid did not change");
+	});
+
 	it('should rollback trx if required', function() {
 		const obj = new TestRecord();
 		obj.name(this.test.fullTitle());
