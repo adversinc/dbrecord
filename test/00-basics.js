@@ -62,6 +62,9 @@ describe('DbRecord basic ops', function() {
 		obj.name(this.test.fullTitle());
 		obj.commit();
 
+		obj.managed_field(`with ${id}`);
+		obj.commit();
+
 		// Checks
 		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
@@ -70,7 +73,7 @@ describe('DbRecord basic ops', function() {
 			name: this.test.fullTitle(),
 			field2: null,
 			field3: null,
-			managed_field: null
+			managed_field: `with ${id}`
 		} ]);
 	});
 
