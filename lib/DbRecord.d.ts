@@ -31,7 +31,7 @@ declare class DbRecord extends DbRecord2 {
     /**
      * Save accumulated changed fields, if any
      */
-    commit(options?: {}): any;
+    commit(options?: DbRecord2.CommitOptions): any;
     /**
      * Removes the record from the database. No verification or integrity checks
      * are being performed, they are up to caller.

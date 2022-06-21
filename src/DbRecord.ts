@@ -70,14 +70,14 @@ class DbRecord extends DbRecord2 {
 	/**
 	 * Save accumulated changed fields, if any
 	 */
-	commit(options = {}) {
+	commit(options: DbRecord2.CommitOptions = {}) {
 		// If called without a fiber, fall to super
 		if(Fiber.current === undefined) {
 			return super.commit(options);
 		}
 
 		const future = new Future();
-		super.commit()
+		super.commit(options)
 			.then(res => future.return(res))
 			.catch(err => { future.throw(err) });
 		return future.wait();
