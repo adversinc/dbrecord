@@ -53,7 +53,7 @@
     "advers-dbrecord2": "^4.3.1",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
-    "fibers": "^4.0.2",
+    "fibers": "^5.0.3",
     "lodash": "^4.17.15",
     "mysql": "^2.18.1",
     "quickly-count-substrings": "^1.0.0"
