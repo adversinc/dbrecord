@@ -1,3 +1,5 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
 const
 	assert = require('assert'),
@@ -5,7 +7,7 @@ const
 	Future = require("fibers/future");
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
+const MysqlDatabase = require("../src/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 const TABLE_NAME = "dbrecord_test";

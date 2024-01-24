@@ -59,9 +59,9 @@ class DbRecord extends DbRecord2 {
 	 * @param {Object} [options] - options for database creation
 	 * @returns {DbRecord} the newly created object
 	 */
-	static newRecord(fields) {
+	static newRecord(fields: DbRecord.ObjectInitializer, options?: DbRecord2.NewRecordOptions): Promise<DbRecord> {
 		const future = new Future();
-		super.newRecord(fields)
+		super.newRecord(fields, options)
 			.then(res => future.return(res))
 			.catch(err => { future.throw(err) });
 		return future.wait();
@@ -227,5 +227,5 @@ namespace DbRecord {
 	export type ForeachCallback<T> = (item: T, options: DbRecord2.ForEachOptions) => boolean|void;
 }
 
-export = DbRecord;
+export default DbRecord;
 

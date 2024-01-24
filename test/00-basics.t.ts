@@ -1,3 +1,8 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
+import TestRecordTS from "./classes/TestRecordTS";
+import DbRecord from "../src/DbRecord";
+
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
 const
 	assert = require('assert'),
@@ -5,10 +10,9 @@ const
 
 // Libs to test
 const MysqlDatabase = require("../lib/MysqlDatabase");
-const TestRecord = require('./classes/TestRecord');
 
 // Tests
-describe('DbRecord basic ops', function() {
+describe('[TS] DbRecord basic ops', function() {
 	let dbh = null;
 	before(function() {
 		MysqlDatabase.masterConfig(config.get("mysql"));
@@ -21,12 +25,12 @@ describe('DbRecord basic ops', function() {
 	});
 
 	beforeEach(() => {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 
-	it("should return correct master dbh", function() {
-		const dbh2 = TestRecord.masterDbh();
+	it("[TS] should return correct master dbh", function() {
+		const dbh2 = TestRecordTS.masterDbh();
 
 		assert.ok(dbh2.cid, "Database handle exists");
 		assert.equal(dbh2.cid, dbh.cid, "Database handle is correct");
@@ -34,8 +38,8 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should create a row', function() {
-		const obj = new TestRecord();
+	it('[TS] should create a row', function() {
+		const obj = new TestRecordTS();
 		obj.name(this.test.fullTitle());
 		obj.commit();
 
@@ -54,10 +58,10 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should create a row with predefined locate id', async function() {
+	it('[TS] should create a row with predefined locate id', function() {
 		const id = Math.round(10 + Math.random()*1000);
 
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.id(id);
 		obj.name(this.test.fullTitle());
 		obj.commit();
@@ -68,25 +72,28 @@ describe('DbRecord basic ops', function() {
 		// Checks
 		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
+
 		assert.deepEqual(row, [ {
 			id: id,
 			name: this.test.fullTitle(),
 			field2: null,
 			field3: null,
-			managed_field: `with ${id}`
+			managed_field: `with ${id}`,
+			unique_field: null,
 		} ]);
 	});
 
 	//
 	//
-	it('should create using newRecord', function() {
-		const obj = TestRecord.newRecord({
+	it('[TS] should create using newRecord', function() {
+		const obj = TestRecordTS.newRecord({
 			name: this.test.fullTitle(),
 			field2: 123,
 			field3: 456
 		});
 
 		// Checks
+		// @ts-ignore
 		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
 		assert.deepEqual(row, [ {
@@ -100,8 +107,8 @@ describe('DbRecord basic ops', function() {
 	});
 	//
 	//
-	it('should create using newRecord with id', function() {
-		const obj = TestRecord.newRecord({
+	it('[TS] should create using newRecord with id', function() {
+		const obj = TestRecordTS.newRecord({
 			id: 999,
 			name: this.test.fullTitle(),
 			field2: 123,
@@ -109,6 +116,7 @@ describe('DbRecord basic ops', function() {
 		});
 
 		// Checks
+		// @ts-ignore
 		const TABLE_NAME  = obj._tableName;
 		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
 		assert.deepEqual(row, [ {
@@ -123,14 +131,14 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should fail on a row duplicate', function() {
-		const obj1 = new TestRecord();
+	it('[TS] should fail on a row duplicate', function() {
+		const obj1 = new TestRecordTS();
 		obj1.name(this.test.fullTitle());
 		obj1.unique_field("1");
 		obj1.commit();
 
 		assert.throws(() => {
-			const obj2 = new TestRecord();
+			const obj2 = new TestRecordTS();
 			obj2.name(this.test.fullTitle());
 			obj2.unique_field("1");
 			obj2.commit();
@@ -141,10 +149,10 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should fail on unexistent row', function() {
-		let error = {};
+	it('[TS] should fail on unexistent row', function() {
+		let error: Partial<Error> = {};
 		try {
-			let obj = new TestRecord({id: 1});
+			let obj = new TestRecordTS({id: 1});
 			console.log("obj:", obj);
 		} catch(ex) {
 			error = ex;
@@ -155,22 +163,22 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should get created on existing row', function() {
+	it('[TS] should get created on existing row', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET id=10,name=?`, [this.test.fullTitle()]);
 
-		const obj = new TestRecord({ id: 10 });
+		const obj = new TestRecordTS({ id: 10 });
 
 		assert.equal(obj.name(), this.test.fullTitle());
 	});
 
 	//
 	//
-	it('should get created by secondary key', function() {
+	it('[TS] should get created by secondary key', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [ Math.random(), 100 ]);
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [this.test.fullTitle(), 200]);
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [ Math.random(), 300 ]);
 
-		const obj = new TestRecord({ field2: 200 });
+		const obj = new TestRecordTS({ field2: 200 });
 
 		assert.deepEqual(
 			{ name: obj.name(), field2: obj.field2() },
@@ -180,14 +188,14 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should fail by unexisting secondary key', function() {
+	it('[TS] should fail by unexisting secondary key', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [ Math.random(), 100 ]);
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [this.test.fullTitle(), 200]);
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?`, [ Math.random(), 300 ]);
 
-		let error = {};
+		let error: Partial<Error> = {};
 		try {
-			let obj = new TestRecord({ field2: 10000 });
+			let obj = new TestRecordTS({ field2: 10000 });
 		} catch(ex) {
 			error = ex;
 		}
@@ -197,7 +205,7 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should get created by complex secondary key', function() {
+	it('[TS] should get created by complex secondary key', function() {
 		// IMPORTANT: the test relies on a row insertion order (the row inserted
 		// first is supposed to be returned with LIMIT 1
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
@@ -209,7 +217,7 @@ describe('DbRecord basic ops', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
 			[ Math.random(), 300, "Fourth" ]);
 
-		const obj = new TestRecord({ field2: 200, field3: "Third" });
+		const obj = new TestRecordTS({ field2: 200, field3: "Third" });
 
 		assert.deepEqual(
 			{ name: obj.name(), field2: obj.field2(), field3: obj.field3() },
@@ -219,7 +227,7 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should fail by unexisting complex secondary key', function() {
+	it('[TS] should fail by unexisting complex secondary key', function() {
 		// IMPORTANT: the test relies on a row insertion order (the row inserted
 		// first is supposed to be returned with LIMIT 1
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
@@ -231,9 +239,9 @@ describe('DbRecord basic ops', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET name=?, field2=?, field3=?`,
 			[ Math.random(), 300, "Fourth" ]);
 
-		let error = {};
+		let error: Partial<Error> = {};
 		try {
-			let obj = new TestRecord({ field2: 200, field3: "One hundreds" });
+			let obj = new TestRecordTS({ field2: 200, field3: "One hundreds" });
 		} catch(ex) {
 			error = ex;
 		}
@@ -243,10 +251,10 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should create in tryCreate', function() {
+	it('[TS] should create in tryCreate', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET id=3,name=?`, [this.test.fullTitle()]);
 
-		let obj = TestRecord.tryCreate({ id: 3 });
+		let obj = TestRecordTS.tryCreate({ id: 3 });
 
 		assert.ok(obj !== null);
 		assert.equal(obj.name(), this.test.fullTitle());
@@ -254,45 +262,47 @@ describe('DbRecord basic ops', function() {
 
 	//
 	//
-	it('should fail in tryCreate for nonexistant', function() {
+	it('[TS] should fail in tryCreate for nonexistant', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET id=3,name=?`, [this.test.fullTitle()]);
 
-		let obj = TestRecord.tryCreate({ id: 3000 });
+		let obj = TestRecordTS.tryCreate({ id: 3000 });
 
 		assert.ok(obj === null);
 	});
 
 	//
 	//
-	it('should remove itself', function() {
+	it('[TS] should remove itself', function() {
 		dbh.querySync(`INSERT INTO dbrecord_test SET id=3,name=?`, [this.test.fullTitle()]);
 
-		let obj = TestRecord.tryCreate({ id: 3 });
+		let obj = TestRecordTS.tryCreate({ id: 3 });
 		assert.ok(obj !== null);
 
 		obj.deleteRecord();
 
-		let obj2 = TestRecord.tryCreate({ id: 3 });
+		let obj2 = TestRecordTS.tryCreate({ id: 3 });
 		assert.ok(obj2 === null);
 	});
 
 	//
 	//
-	it('should create subclass using tryCreate', function() {
+	it('[TS] should create subclass using tryCreate', function() {
 
-		class DerivedClassDB extends TestRecord {
-			//name: DbRecord.Column.String;
+		class DerivedClassDB extends TestRecordTS {
+			name: DbRecord.Column.String;
 
-			constructor(data) {
-				super(data);
+			constructor(values = {}, options = {}) {
+				super(values, options);
 
 				console.log("DerivedClassDB constructor called")
 			}
+
+			//static tryCreate() {}
 		}
 
 		class DerivedClass extends DerivedClassDB {
-			constructor(data) {
-				super(data);
+			constructor(values = {}, options = {}) {
+				super(values, options);
 			}
 		}
 
@@ -310,9 +320,23 @@ describe('DbRecord basic ops', function() {
 		assert.ok(obj !== null);
 		assert.equal(obj.name(), this.test.fullTitle());
 		assert.equal(obj.constructor.name, "DerivedClass");
-		assert.equal(obj.__proto__.constructor.name, "DerivedClass");
-		assert.equal(obj.__proto__.__proto__.constructor.name, "DerivedClassDB");
-		assert.equal(obj.__proto__.__proto__.__proto__.constructor.name, "TestRecord");
+		assert.deepEqual(
+			[
+				//@ts-ignore
+				obj.__proto__.constructor.name,
+				//@ts-ignore
+				obj.__proto__.__proto__.constructor.name,
+				//@ts-ignore
+				obj.__proto__.__proto__.__proto__.constructor.name,
+				//@ts-ignore
+				obj.__proto__.__proto__.__proto__.__proto__.constructor.name,
+				//@ts-ignore
+				obj.__proto__.__proto__.__proto__.__proto__.__proto__.constructor.name],
+			[
+				"DerivedClass", "DerivedClassDB",
+				"TestRecord", "TestRecordDB",
+				"DbRecord"]
+		);
 	});
 
 });

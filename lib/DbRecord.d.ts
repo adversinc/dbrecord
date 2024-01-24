@@ -1,6 +1,6 @@
 import DbRecord2 from "advers-dbrecord2";
 import MysqlDatabase from "./MysqlDatabase";
-declare type TransactionCallback<T extends DbRecord2> = (me: T) => boolean | void;
+type TransactionCallback<T extends DbRecord2> = (me: T) => boolean | void;
 /**
  * Represents the database record class.
 **/
@@ -27,7 +27,7 @@ declare class DbRecord extends DbRecord2 {
      * @param {Object} [options] - options for database creation
      * @returns {DbRecord} the newly created object
      */
-    static newRecord(fields: any): any;
+    static newRecord(fields: DbRecord.ObjectInitializer, options?: DbRecord2.NewRecordOptions): Promise<DbRecord>;
     /**
      * Save accumulated changed fields, if any
      */
@@ -78,4 +78,4 @@ declare namespace DbRecord {
     export import Column = DbRecord2.Column;
     type ForeachCallback<T> = (item: T, options: DbRecord2.ForEachOptions) => boolean | void;
 }
-export = DbRecord;
+export default DbRecord;

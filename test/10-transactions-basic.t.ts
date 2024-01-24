@@ -1,3 +1,5 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
 require('source-map-support').install();
 
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
@@ -12,8 +14,8 @@ const
 const time = require("./helpers/time");
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
-const TestRecord = require('./classes/TestRecord');
+const MysqlDatabase = require("../src/MysqlDatabase");
+import TestRecordTS from "./classes/TestRecordTS";
 
 // Tests
 describe('DbRecord transactions, single thread', function() {
@@ -30,17 +32,17 @@ describe('DbRecord transactions, single thread', function() {
 	});
 
 	beforeEach(() => {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 	//
 	//
 	it('should save committed', function() {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 
 		var objId = null;
 		dbh.execTransaction((dbh) => {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle());
 			obj.commit();
 
@@ -49,7 +51,7 @@ describe('DbRecord transactions, single thread', function() {
 
 		let exists = true;
 		try {
-			const obj2 = new TestRecord({id: objId});
+			const obj2 = new TestRecordTS({id: objId});
 		} catch(ex) {
 			if(ex == "E_DB_NO_OBJECT") {
 				exists = false;
@@ -68,11 +70,11 @@ describe('DbRecord transactions, single thread', function() {
 		//	mlog.log("QUERY: ", sequence.sql);
 		//});
 
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 
 		var objId = null;
 		dbh.execTransaction((dbh) => {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle());
 			obj.commit();
 
@@ -80,7 +82,7 @@ describe('DbRecord transactions, single thread', function() {
 			return false;
 		});
 
-		assert.ok(TestRecord.tryCreate({id: objId}) === null, "Object should not exist");
+		assert.ok(TestRecordTS.tryCreate({id: objId}) === null, "Object should not exist");
 	});
 
 
@@ -135,7 +137,7 @@ describe('DbRecord transactions, multi-thread', function() {
 	});
 
 	beforeEach(() => {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 	//
@@ -143,11 +145,11 @@ describe('DbRecord transactions, multi-thread', function() {
 	it('should lock record with forUpdate', function() {
 		let rowsFound = null;
 
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name("Original");
 		obj.commit();
 
-		res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
+		const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
 		mlog.log(`${obj._dbh._db.threadId}: dump: `, res.id, res.name);
 
 		// Start thread 2 which waits 500ms which tries to read object #1
@@ -169,7 +171,7 @@ describe('DbRecord transactions, multi-thread', function() {
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
-			const obj = new TestRecord({ id: 1}, { forUpdate: true });
+			const obj = new TestRecordTS({ id: 1}, { forUpdate: true });
 			mlog.log("thread 1 got obj and sleeping:", obj.id(), obj.name());
 
 			time.sleep(2000);
@@ -193,11 +195,11 @@ describe('DbRecord transactions, multi-thread', function() {
 	it('should lock record with forUpdate in forEach', function() {
 		let rowsFound = null;
 
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name("Original");
 		obj.commit();
 
-		res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
+		const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
 		mlog.log("dump: ", res.id, res.name);
 
 		// Start thread 2 which waits 500ms which tries to read object #1
@@ -219,8 +221,8 @@ describe('DbRecord transactions, multi-thread', function() {
 		// for 1000ms
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
-			TestRecord.forEach({ forUpdate: true }, (item, options) => {
-				mlog.log(`${item._dbh._db.threadId}/${TestRecord.masterDbh()._db.threadId}: thread 1 locked record and sleeping:`, obj.id(), obj.name());
+			TestRecordTS.forEach({ forUpdate: true }, (item, options) => {
+				mlog.log(`${item._dbh._db.threadId}/${TestRecordTS.masterDbh()._db.threadId}: thread 1 locked record and sleeping:`, obj.id(), obj.name());
 				time.sleep(2000);
 				mlog.log("thread 1 sleep end");
 				item.name("Changed by 1");
@@ -252,7 +254,7 @@ describe('DbRecord transactionWithMe', function() {
 	});
 
 	beforeEach(function() {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 	after(() => {
@@ -262,7 +264,7 @@ describe('DbRecord transactionWithMe', function() {
 	//
 	//
 	it('should work inside trx', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name("Original name");
 		obj.commit();
 
@@ -283,14 +285,14 @@ describe('DbRecord transactionWithMe', function() {
 	//
 	//
 	it('should have the previous cid after trx', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name("Original name");
 		obj.commit();
 
 		const cid1 = obj._dbh.cid;
 		obj.transactionWithMe((obj) => {
 			//console.log("In TRX:", obj);
-			originalName = obj.name();
+			//originalName = obj.name();
 
 			obj.name("Changed to new");
 			obj.commit();
@@ -301,7 +303,7 @@ describe('DbRecord transactionWithMe', function() {
 	});
 
 	it('should rollback trx if required', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name(this.test.fullTitle());
 		obj.commit();
 
@@ -323,7 +325,7 @@ describe('DbRecord transactionWithMe', function() {
 
 
 	it('ends and further queries work', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name(this.test.fullTitle());
 		obj.commit();
 
@@ -340,7 +342,7 @@ describe('DbRecord transactionWithMe', function() {
 		});
 
 		assert.doesNotThrow(() => {
-			TestRecord.forEach({}, (item, options) => {
+			TestRecordTS.forEach({}, (item, options) => {
 				console.log("item name:", item.name());
 			});
 		}, "forEach works after transactionWithMe");
@@ -348,7 +350,7 @@ describe('DbRecord transactionWithMe', function() {
 
 
 	it('works if code in transaction crashes', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name("Original");
 		obj.commit();
 
@@ -364,13 +366,14 @@ describe('DbRecord transactionWithMe', function() {
 				obj.name("Changed to new");
 				obj.commit();
 
+				// @ts-ignore Simulate crash
 				unexistantFunc();
 			});
 		} catch(ex) {
 			error = ex.message;
 		}
 
-		const obj2 = new TestRecord({ id: obj.id() });
+		const obj2 = new TestRecordTS({ id: obj.id() });
 
 		assert.equal(error, "unexistantFunc is not defined", "Error popped from transaction");
 		assert.equal(obj2.name(), "Original", "Transaction changes rolled back");

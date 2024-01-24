@@ -1,3 +1,5 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
 require('source-map-support').install();
 
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
@@ -10,7 +12,7 @@ const
 	mlog = require('mocha-logger');
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
+const MysqlDatabase = require("../src/MysqlDatabase");
 const TestRecord = require('./classes/TestRecord');
 
 // Tests

@@ -1,3 +1,5 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
 const
 	assert = require('assert'),
@@ -5,8 +7,8 @@ const
 	mlog = require('mocha-logger');
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
-const TestRecord = require('./classes/TestRecord');
+const MysqlDatabase = require("../src/MysqlDatabase");
+import TestRecordTS from "./classes/TestRecordTS";
 
 // Tests
 describe('DbRecord2 managed fields', function() {
@@ -20,13 +22,13 @@ describe('DbRecord2 managed fields', function() {
 	});
 
 	beforeEach(() => {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 	//
 	//
 	it('should use overloaded field', function() {
-		const obj = new TestRecord();
+		const obj = new TestRecordTS();
 		obj.name(this.test.fullTitle());
 		obj.managed_field("test");
 		obj.commit();

@@ -1,11 +1,13 @@
+import {describe, before, after, beforeEach, it} from "mocha";
+
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config/";
 const
 	assert = require('assert'),
 	config = require("config");
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
-const TestRecord = require('./classes/TestRecord');
+const MysqlDatabase = require("../src/MysqlDatabase");
+import TestRecordTS from "./classes/TestRecordTS";
 
 // Tests
 describe('DbRecord record iteration', function() {
@@ -19,7 +21,7 @@ describe('DbRecord record iteration', function() {
 	});
 
 	beforeEach(() => {
-		TestRecord.createMockTable(dbh);
+		TestRecordTS.createMockTable(dbh);
 	});
 
 	//
@@ -28,14 +30,14 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle() + "#" + i);
 			obj.commit();
 		}
 
 		// Checks
 		const res = [];
-		TestRecord.forEach({ DEBUG_SQL_QUERY: 1 }, (itm, options) => {
+		TestRecordTS.forEach({ debugSql: true }, (itm, options) => {
 			res.push({ id: itm.id(), name: itm.name() });
 		});
 
@@ -54,14 +56,14 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle() + "#" + i);
 			obj.commit();
 		}
 
 		// Checks
 		const res = [];
-		TestRecord.forEach({ ORDERBY: "id DESC" }, (itm, options) => {
+		TestRecordTS.forEach({ ORDERBY: "id DESC" }, (itm, options) => {
 			res.push({ id: itm.id(), name: itm.name() });
 		});
 
@@ -80,14 +82,14 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle() + "#" + i);
 			obj.commit();
 		}
 
 		// Checks
 		const res = [];
-		TestRecord.forEach({ LIMIT: 1 }, (itm, options) => {
+		TestRecordTS.forEach({ LIMIT: "1" }, (itm, options) => {
 			res.push({ id: itm.id(), name: itm.name() });
 		});
 
@@ -102,14 +104,14 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle() + "#" + i);
 			obj.commit();
 		}
 
 		// Checks
 		const res = [];
-		TestRecord.forEach({ LIMIT: "2,1" }, (itm, options) => {
+		TestRecordTS.forEach({ LIMIT: "2,1" }, (itm, options) => {
 			res.push({ id: itm.id(), name: itm.name() });
 		});
 
@@ -124,17 +126,19 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 			obj.name(this.test.fullTitle() + "#" + i);
-			obj.field2(i);
+			obj.field2(i.toString());
 			obj.commit();
 		}
 
 		// Checks
 		const res = [];
-		TestRecord.forEach({ field2: 2, DEBUG_SQL_QUERY: 1 }, (itm, options) => {
-			res.push({ id: itm.id(), name: itm.name(), field2: itm.field2() });
-		});
+		TestRecordTS.forEach(
+			{ whereCond: ["field2=?"], whereParam: [2], debugSql: true },
+			(itm, options) => {
+				res.push({id: itm.id(), name: itm.name(), field2: itm.field2()});
+			});
 
 		assert.deepEqual(res, [
 			{ id: 3, name: "DbRecord record iteration should go through with field filter#2", field2: 2 },
@@ -147,10 +151,10 @@ describe('DbRecord record iteration', function() {
 		// Create records
 		const source = [];
 		for(let i = 0; i < 5; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 
 			obj.name(this.test.fullTitle() + "#" + i);
-			obj.field2(i);
+			obj.field2(i.toString());
 			obj.commit();
 		}
 
@@ -158,9 +162,10 @@ describe('DbRecord record iteration', function() {
 		const ERROR = "Error in iterator";
 
 		assert.throws(() => {
-			TestRecord.forEach({
-				field2: 2,
-				DEBUG_SQL_QUERY: 1
+			TestRecordTS.forEach({
+				whereCond: ["field2=?"],
+				whereParam: [2],
+				debugSql: true,
 			}, (itm, options) => {
 				throw new Error(ERROR);
 			});
@@ -173,16 +178,16 @@ describe('DbRecord record iteration', function() {
 	it('should accept additional where conditions', function() {
 		// Create records
 		for(let i = 0; i < 10; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 
 			obj.name(this.test.fullTitle() + "#" + i);
-			obj.field2(parseInt(i/3));
+			obj.field2(Number(i/3).toString());
 			obj.commit();
 		}
 
-		const n = TestRecord.forEach({
+		const n = TestRecordTS.forEach({
 			whereCond: [ "field2=2" ]
-		}, async (itm, options) => {
+		}, (itm, options) => {
 			assert.equal(itm.field2(), 2);
 		});
 
@@ -192,16 +197,16 @@ describe('DbRecord record iteration', function() {
 	it('should accept additional where conditions with whereParam', function() {
 		// Create records
 		for(let i = 0; i < 10; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 
 			obj.name(this.test.fullTitle() + "#" + i);
-			obj.field2(parseInt(i/3));
+			obj.field2(Number(i/3).toString());
 		}
 
-		const n = TestRecord.forEach({
+		const n = TestRecordTS.forEach({
 			whereCond: [ "field2=?" ],
 			whereParam: [ 5 ]
-		});
+		}, null);
 
 		assert.equal(n, 0);
 	});
@@ -209,19 +214,19 @@ describe('DbRecord record iteration', function() {
 	it('should not clash on complex additional conditions', function() {
 		// Create records
 		for(let i = 0; i < 10; i++) {
-			const obj = new TestRecord();
+			const obj = new TestRecordTS();
 
 			obj.name(this.test.fullTitle() + "#" + i);
-			obj.field2(parseInt(i/3));
+			obj.field2(Number(i/3).toString());
 		}
 
-		const n = TestRecord.forEach({
+		const n = TestRecordTS.forEach({
 			whereCond: [
 				"field2=?",
 				"field2=? OR field2=?"
 			],
 			whereParam: [ 1, 2, 3 ]
-		});
+		}, null);
 
 		assert.equal(n, 0);
 	});
