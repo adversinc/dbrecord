@@ -12,7 +12,7 @@ const
 	mlog = require('mocha-logger');
 
 // Libs to test
-const MysqlDatabase = require("../src/MysqlDatabase");
+import MysqlDatabase from "../src/MysqlDatabase";
 const TestRecord = require('./classes/TestRecord');
 
 // Tests

@@ -3,9 +3,9 @@
 		//"sourceMap": true,
 		"allowJs": true,
 		"esModuleInterop": true,
-		"moduleResolution": "Node",
-		"module": "commonjs",
-		"target": "ES2019",
+		//"moduleResolution": "node",
+		"module": "nodenext",
+		"target": "es2019",
 		"declaration": true,
 
 		"baseUrl": "./",

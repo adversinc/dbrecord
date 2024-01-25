@@ -68,4 +68,4 @@ declare class MysqlDatabase extends MysqlDatabase2 {
 }
 declare namespace MysqlDatabase {
 }
-export = MysqlDatabase;
+export default MysqlDatabase;

@@ -27,7 +27,7 @@ declare class DbRecord extends DbRecord2 {
      * @param {Object} [options] - options for database creation
      * @returns {DbRecord} the newly created object
      */
-    static newRecord(fields: DbRecord.ObjectInitializer, options?: DbRecord2.NewRecordOptions): Promise<DbRecord>;
+    static newRecord(fields: DbRecord.ObjectInitializer, options?: DbRecord2.NewRecordOptions): DbRecord;
     /**
      * Save accumulated changed fields, if any
      */

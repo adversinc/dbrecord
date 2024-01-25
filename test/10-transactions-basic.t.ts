@@ -14,7 +14,7 @@ const
 const time = require("./helpers/time");
 
 // Libs to test
-const MysqlDatabase = require("../src/MysqlDatabase");
+import MysqlDatabase from "../src/MysqlDatabase";
 import TestRecordTS from "./classes/TestRecordTS";
 
 // Tests
@@ -150,7 +150,10 @@ describe('DbRecord transactions, multi-thread', function() {
 		obj.commit();
 
 		const res = dbh.getRowSync("SELECT id,name FROM dbrecord_test");
-		mlog.log(`${obj._dbh._db.threadId}: dump: `, res.id, res.name);
+
+		// @ts-ignore
+		const threadId = obj._dbh._db.threadId;
+		mlog.log(`${threadId}: dump: `, res.id, res.name);
 
 		// Start thread 2 which waits 500ms which tries to read object #1
 		let task2Val = "";
@@ -222,7 +225,12 @@ describe('DbRecord transactions, multi-thread', function() {
 		dbh.execTransaction((dbh) => {
 			mlog.log("thread 1 starting, dbh:", dbh._db.threadId);
 			TestRecordTS.forEach({ forUpdate: true }, (item, options) => {
-				mlog.log(`${item._dbh._db.threadId}/${TestRecordTS.masterDbh()._db.threadId}: thread 1 locked record and sleeping:`, obj.id(), obj.name());
+				// @ts-ignore
+				const threadId = obj._dbh._db.threadId;
+				// @ts-ignore
+				const masterThreadId = TestRecordTS.masterDbh()._db.threadId;
+
+				mlog.log(`${threadId}/${masterThreadId}: thread 1 locked record and sleeping:`, obj.id(), obj.name());
 				time.sleep(2000);
 				mlog.log("thread 1 sleep end");
 				item.name("Changed by 1");
@@ -332,13 +340,18 @@ describe('DbRecord transactionWithMe', function() {
 		let originalName = "was not called at all";
 
 		obj.transactionWithMe((obj) => {
-			mlog.log(`${obj._dbh._db.threadId}: thread 1 starts, obj name: "${obj.name()}"`);
+			// @ts-ignore
+			let threadId = obj._dbh._db.threadId;
+
+			mlog.log(`${threadId}: thread 1 starts, obj name: "${obj.name()}"`);
 			originalName = obj.name();
 
 			obj.name("Changed to new");
 			obj.commit();
 
-			mlog.log(`${obj._dbh._db.threadId}: thread 1 end`);
+			// @ts-ignore
+			threadId = obj._dbh._db.threadId;
+			mlog.log(`${threadId}: thread 1 end`);
 		});
 
 		assert.doesNotThrow(() => {
@@ -360,7 +373,10 @@ describe('DbRecord transactionWithMe', function() {
 
 		try {
 			obj.transactionWithMe((obj) => {
-				mlog.log(`${obj._dbh._db.threadId}: thread 1 starts, obj name: "${obj.name()}"`);
+				// @ts-ignore
+				let threadId = obj._dbh._db.threadId;
+
+				mlog.log(`${threadId}: thread 1 starts, obj name: "${obj.name()}"`);
 				originalName = obj.name();
 
 				obj.name("Changed to new");

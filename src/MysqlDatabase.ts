@@ -110,5 +110,5 @@ namespace MysqlDatabase {
 	interface DbConfig extends MysqlDatabase2.DbConfig {}
 }
 
-export = MysqlDatabase;
+export default MysqlDatabase;
 

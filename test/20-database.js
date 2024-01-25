@@ -7,7 +7,7 @@ const
 	Future = require("fibers/future");
 
 // Libs to test
-const MysqlDatabase = require("../src/MysqlDatabase");
+import MysqlDatabase from "../src/MysqlDatabase";
 const TestRecord = require('./classes/TestRecord');
 
 const TABLE_NAME = "dbrecord_test";

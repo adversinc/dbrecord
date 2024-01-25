@@ -1,6 +1,6 @@
 {
   "name": "advers-dbrecord",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "The MySQL active record base class",
   "main": "src/DbRecord.ts",
   "types": "./lib/DbRecord.d.ts",
@@ -37,7 +37,7 @@
     "config": "^3.3.10",
     "microtime": "^3.1.1",
     "mocha": "^7.0.1",
-    "mocha-fibers": "git+https://github.com/adversinc/mocha-fibers.git",
+    "mocha-fibers": "https://github.com/adversinc/mocha-fibers.git",
     "mocha-logger": "^1.0.6",
     "promise-mysql": "^5.2.0",
     "source-map-support": "^0.5.21",
@@ -45,7 +45,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "advers-dbrecord2": "^4.6.0",
+    "advers-dbrecord2": "^6.1.1",
     "cls-hooked": "^4.2.2",
     "continuation-local-storage": "^3.2.1",
     "fibers": "^5.0.3",

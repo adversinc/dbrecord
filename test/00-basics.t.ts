@@ -9,7 +9,7 @@ const
 	config = require("config");
 
 // Libs to test
-const MysqlDatabase = require("../lib/MysqlDatabase");
+import MysqlDatabase from "../lib/MysqlDatabase";
 
 // Tests
 describe('[TS] DbRecord basic ops', function() {
@@ -105,6 +105,37 @@ describe('[TS] DbRecord basic ops', function() {
 			unique_field: null
 		} ]);
 	});
+
+	//
+	//
+	it('[TS] should create use newRecord options', function() {
+		const obj = TestRecordTS.newRecord({
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456
+		}, { noCommit: true });
+
+		// @ts-ignore
+		const TABLE_NAME  = obj._tableName;
+
+		// Checks 1
+		const row = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
+		assert.deepEqual(row, [ ]);
+
+		obj.commit();
+
+		// Checks 2
+		const row2 = dbh.querySync(`SELECT * FROM ${TABLE_NAME}`);
+		assert.deepEqual(row2, [ {
+			id: 1,
+			name: this.test.fullTitle(),
+			field2: 123,
+			field3: 456,
+			managed_field: null,
+			unique_field: null
+		} ]);
+	});
+
 	//
 	//
 	it('[TS] should create using newRecord with id', function() {
